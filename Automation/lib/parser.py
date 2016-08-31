@@ -8,8 +8,8 @@ class Parser:
 
     def get_csvpath(self):
         """This method searches and returns the path where the csv testcases are saved."""
-        # ext   = "data\\regression"
-        ext   = "D:\\Automation\\Automation\\data\\regression\\"
+        ext   = "Automation\\data\\regression"
+        # ext   = "D:\\Automation\\Automation\\data\\regression\\"
         cwd   = os.path.abspath("..")
         path_ = os.path.join(cwd, ext)
         return path_

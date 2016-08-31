@@ -5,8 +5,7 @@ class config(object):
     """description of class"""
 
     # DEFAULTS
-    # config_file = '.\setup.cfg'
-    config_file = 'D:\\Automation\\Automation\\setup.cfg'
+    config_file = '.\setup.cfg'
     exec_mode = 'local'
     browser = [{'browserName': 'ie'}]
     build_tag = None  # get this somewhere

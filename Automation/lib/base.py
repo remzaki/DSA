@@ -47,7 +47,7 @@ class BaseTest(unittest.TestCase):
         if config.exec_mode == 'local':
             browser = config.browser[0]['browserName']
             if browser == 'ie':
-                self.driver = webdriver.Ie('D:\Automation\Automation\drivers\IEDriverServer')
+                self.driver = webdriver.Ie('.\drivers\IEDriverServer.exe')
             elif browser == 'chrome':
                 self.driver = webdriver.Chrome('.\drivers\chromedriver.exe')
 
