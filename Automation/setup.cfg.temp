@@ -23,11 +23,11 @@ browser = chrome
 # Setup for execution = remote
 [remote]
 # your SauceLab username
-username = rcogonon
+username = 
 
 # your SauceLab Access Key
 # for more info, check: https://wiki.saucelabs.com/display/DOCS/Account+Methods
-accesskey = 6837a51d-ac53-4349-9fa8-71dbddb83c62
+accesskey = 
 
 # run the remote test parallel
 # values: true/false
@@ -46,7 +46,7 @@ selenium_port =
 # this is for pytest
 # do not change anything here unless you know what you are doing
 [pytest]
-addopts = -s --cache-clear
+addopts = --cache-clear
 python_files = Automation.py
 python_classes = TestClass
 python_functions =
