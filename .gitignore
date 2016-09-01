@@ -9,6 +9,9 @@ __pycache__/
 # Pycharm stuffs
 .idea/
 
+#Custom stuffs
+setup.cfg
+
 # Distribution / packaging
 .Python
 env/
