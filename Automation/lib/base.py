@@ -1,15 +1,20 @@
+
 import unittest
 import sys
 import new
+import time
 from selenium import webdriver
 from sauceclient import SauceClient
 from lib.config import config
 from lib.log import Logger
 import logging
+from lib.platformCount import *
+from lib.generateXml import *
+from lib.generateHtml import *
 
 logger = Logger()
 platforms = config.browser
-
+pc = PlatformCount()
 
 def on_platforms(platforms):
     def decorator(base_class):
@@ -18,7 +23,8 @@ def on_platforms(platforms):
             d = dict(base_class.__dict__)
             d['desired_capabilities'] = platform
             # TODO: name = "Test Suite Name"!
-            name = "%s_%s" % (base_class.__name__, i + 1)
+            name       = "%s_%s" % (base_class.__name__, i + 1)
+            pc.pfCount = i + 1
             module[name] = new.classobj(name, (base_class,), d)
 
     return decorator
@@ -43,12 +49,12 @@ class BaseTest(unittest.TestCase):
         # logger.setup_logger('log1', 'log1.txt')
         # log1 = logging.getLogger('log1')
         # log1.info('hi there from log1')
-
+        self.startTime = time.time()
         if config.exec_mode == 'local':
-            browser = config.browser[0]['browserName']
-            if browser == 'ie':
+            self.browser = config.browser[0]['browserName']
+            if self.browser == 'ie':
                 self.driver = webdriver.Ie('.\drivers\IEDriverServer.exe')
-            elif browser == 'chrome':
+            elif self.browser == 'chrome':
                 self.driver = webdriver.Chrome('.\drivers\chromedriver.exe')
 
             self.driver.maximize_window()
@@ -72,25 +78,38 @@ class BaseTest(unittest.TestCase):
 
     # tearDown runs after each test case
     def tearDown(self):
-        status = (sys.exc_info() == (None, None, None))
+        status  = (sys.exc_info() == (None, None, None))
+        id_     = self.id()
+        id_     = id_.split(".")
+        tg_name = id_[1]
+        tg_name = tg_name + "_" + str(pc.pfCount)
+        tc_name = id_[2]
 
         if config.exec_mode == 'local':
             if not status:
                 self.driver.save_screenshot('.\logs\%s.png' % self.__name__)
+            value = self.polish_result(tg_name, tc_name, status, self.browser)
         elif config.exec_mode == 'remote':
             sauce_client = SauceClient(BaseTest.username, BaseTest.access_key)
             sauce_client.jobs.update_job(self.driver.session_id, passed=status)
             # test_name = "%s_%s" % (type(self).__name__, self.__name__)
             # with(open('logs\\' + test_name + '.txt', 'w')) as outfile:
             #    outfile.write("SauceOnDemandSessionID=%s job-name=%s\n" % (self.driver.session_id, test_name))
+            self.test_attrib = sauce_client.jobs.get_job_attributes(self.driver.session_id)
+            browser = self.test_attrib["browser"]
+            value   = self.polish_result(tg_name, tc_name, status, browser)
+        self.driver.implicitly_wait(5)
 
         self.driver.quit()
+        self.xresult.testDict = value
 
     @classmethod
     def setup_class(cls):
-        cls.build_tag = config.build_tag
-        cls.tunnel_id = config.tunnel_id
-        cls.username = config.username
+        cls.xresult    = TestDict()
+        cls.hreport    = HTMLClass()
+        cls.build_tag  = config.build_tag
+        cls.tunnel_id  = config.tunnel_id
+        cls.username   = config.username
         cls.access_key = config.accesskey
 
         cls.selenium_port = config.selenium_port
@@ -99,3 +118,37 @@ class BaseTest(unittest.TestCase):
         else:
             cls.selenium_host = "ondemand.saucelabs.com"
             cls.selenium_port = "80"
+
+    @classmethod
+    def teardown_class(cls):
+        cls.outdir = cls.xresult.create_xml(cls.xresult.testDict)
+        x          = pc.pfCount - 1
+        pc.pfCount = x
+        cls.hreport.create_html(cls.outdir)
+
+    def polish_result(self, tg_name, tc_name, status, browser):
+        value  = {}
+        passed = 0
+        failed = 0
+        if status:
+            passed = 1
+        else:
+            failed = 1
+        self.endTime = time.time()
+        durTime = self.endTime - self.startTime
+
+        if config.exec_mode == 'local':
+            value["testsuite"] = tg_name
+            value["testcase"]  = tc_name
+            value["passed"]    = str(passed)
+            value["failed"]    = str(failed)
+            value["duration"]  = str(durTime)
+            value["browser"]   = browser
+        elif config.exec_mode == 'remote':
+            value["testsuite"] = tg_name
+            value["testcase"]  = tc_name
+            value["passed"]    = str(passed)
+            value["failed"]    = str(failed)
+            value["duration"]  = str(durTime)
+            value["browser"]   = browser
+        return value
