@@ -27,7 +27,7 @@ class Elements:
                              ".btn btn-primary applyBtn btn-sm",
                              "onclick:javascript:return AddToCart('RegularPlans_<sessionid?>_IsSelected','RegularPlans_<sessionid?>_QuoteHealthPlanId', this);"],
         "expand_coverage_dlg": ["#expandYourCoverageModal .coverageModalContent"],
-        "no_thanks_bttn": ["#anchorSkip"],
+        "no_thanks_bttn": ["#expandYourCoverageModal a#anchorSkip"],
         "shopping_cart_page": [".brokerCensusHeader"],
         "apply_bttn": ["input[value=Apply]"],
         "applicant_info_page": ["#ctl00_lblPageTitle"],
@@ -127,8 +127,7 @@ class Elements:
         "cart_checkout_page": ["#ctl00_cphMain_pnlApplicationTypes"],
         "coverage_start_date_fld": [".dp-applied",
                                     "#ctl00_cphMain_ucTermLifeCriticalIllness_txtEffectiveDate_txtEffectiveDatetxtMainInput"],
-        "credit_card_page": [".maintitle app-sidebar-titletxt", ".maintitletext app-sidebar-curs",
-                             ".app-sidebar-titlelbl", "#ctl00_lblPageTitle"],
+        "credit_card_page": ["#ctl00_cphMain_ucCreditCardDetails_divCreditCard"],
         "credit_card_type_lst": [
             "select#ctl00_cphMain_ucCreditCardDetails_ddlCreditCardType_ddlCreditCardTypeddlMainInput"],
         "credit_card_num_fld": [
@@ -174,7 +173,7 @@ class Elements:
     def get_data(self, name):
         elements = False
         try:
-            elements = self.dict[name]
+            elements = self.dict[name][0]
         except KeyError:
             elements = False
         finally:
