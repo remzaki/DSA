@@ -1,0 +1,91 @@
+<html>
+<head/>
+<style>
+    #tbl1{
+        border-collapse: collapse;
+        width: 250px;
+    }
+
+    #tbl2{
+        width: 650px;
+        border-collapse:collapse;
+    }
+
+    #th2{
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+        color: rgb(255, 255, 255);
+        background-color: rgb(107, 107, 107);
+    }
+
+    #td1{
+        text-align: left;
+        border-width: 1px;
+        border-style: solid;
+    }
+    
+    #td2{
+        border-width: 1px;
+        border-style: solid;
+        text-align: center;
+    }
+
+</style>
+<br/>
+<div><span style="text-decoration: underline; font-weight: bold;">Executive Summary:</span></div>
+<div><span class="Apple-tab-span" style="line-height: 1.42857143; white-space: pre;"></span><span style="line-height: 1.42857143;">&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</span></div>
+<div>
+    <table id='tbl1'>
+        <tbody>
+            <tr>
+                <td id='td1'>&nbsp;Total tests</td>
+                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@totaltc@@</td>
+            </tr>
+
+            <tr>
+                <td id='td1'>&nbsp;Total pass</td>
+                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@pass@@</td>
+            </tr>
+
+            <tr>
+                <td id='td1'>&nbsp;Total fail</td>
+                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@fail@@</td>
+            </tr>
+
+            <tr>
+                <td id='td1'>&nbsp;Total duration</td>
+                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@duration@@</td>
+            </tr>
+
+        </tbody>
+    </table><br/>
+</div>
+
+<br/>
+<div><span style="font-weight: bold; text-decoration: underline; line-height: 1.42857143;">Technical Summary:</span></div>
+<div>&nbsp;</div>
+<div>
+    <table id='tbl2'>
+        <tbody>
+            <tr>
+                <th id='th2'>Name</td>
+                <th id='th2'>Pass</td>
+                <th id='th2'>Fail</td>
+                <th id='th2'>Duration</td>
+                <th id='th2'>Browser</td>
+            </tr>
+@@tableentry@@
+        </tbody>
+
+    </table><br />
+<br/>
+<br/>
+    <!--<div>You can view full details by clicking on the link below:</div>-->
+    <!--<div><a href="http://</a>/</div></div>-->
+
+<br/>
+<br/>
+<p>~not yet final...</p>
+
+</html>
