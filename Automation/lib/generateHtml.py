@@ -6,18 +6,31 @@ import re
 from xml.dom.minidom import Document
 
 class HTMLClass(object):
-    def create_table_entry(self, browser, duration, failed, passed, name):
+    def create_table_entry(self, error, browser, OS, duration, failed, passed, name):
         """
         This method creates a table entry with a list of browser, exec time, fail/pass status, test name, and then
         returns the tableresult.
         """
-        tableresult = """            <tr>
-                    <td id='td2'>&nbsp;%s</td>
-                    <td id='td2'>&nbsp;%s</td>
-                    <td id='td2'>&nbsp;%s</td>
-                    <td id='td2'>&nbsp;%s</td>
-                    <td id='td2'>&nbsp;%s</td>
-                </tr>""" %(name, passed, failed, duration, browser)
+        if browser == "":
+	        tableresult = """            <tr>
+	                    <td id='td3'><strong>&nbsp;%s</strong></td>
+	                    <td id='td3'>&nbsp;%s</td>
+	                    <td id='td3'>&nbsp;%s</td>
+	                    <td id='td3'>&nbsp;%s</td>
+	                    <td id='td3'>&nbsp;%s</td>
+	                    <td id='td3'>&nbsp;%s</td>
+	                    <td id='td3'>&nbsp;%s</td>
+	                </tr>""" %(name, passed, failed, duration, OS, browser, error)
+        else:
+			tableresult = """            <tr>
+	                    <td id='td2'>&nbsp;%s</td>
+	                    <td id='td2'>&nbsp;%s</td>
+	                    <td id='td2'>&nbsp;%s</td>
+	                    <td id='td2'>&nbsp;%s</td>
+	                    <td id='td2'>&nbsp;%s</td>
+	                    <td id='td2'>&nbsp;%s</td>
+	                    <td id='td2'><a href=%s>screenshot</a></td>
+	                </tr>""" %(name, passed, failed, duration, OS, browser, error)
         return tableresult
 
     def process_xml(self, XMLFile, outputdir):
@@ -55,12 +68,13 @@ class HTMLClass(object):
         tsuite = ""
         for ts in root.iter('testcase'):
             if not tsuite:
-                tsuite = self.create_table_entry(ts.attrib.get('browser'), ts.attrib.get('duration'), ts.attrib.get('fail'),
-                                                  ts.attrib.get('pass'), ts.attrib.get('name'))
+                tsuite = self.create_table_entry(ts.attrib.get('error'), ts.attrib.get('browser'), ts.attrib.get('os'),
+                                                ts.attrib.get('duration'), ts.attrib.get('fail'),
+                                                ts.attrib.get('pass'), ts.attrib.get('name'))
             else:
-                tsuite = tsuite + "\n%s" % self.create_table_entry(ts.attrib.get('browser'), ts.attrib.get('duration'),
-                                                                    ts.attrib.get('fail'), ts.attrib.get('pass'),
-                                                                    ts.attrib.get('name'))
+                tsuite = tsuite + "\n%s" % self.create_table_entry(ts.attrib.get('error'), ts.attrib.get('browser'),
+                                                ts.attrib.get('os'), ts.attrib.get('duration'),
+                                                ts.attrib.get('fail'), ts.attrib.get('pass'), ts.attrib.get('name'))
             # endif
         # endfor
 
@@ -99,11 +113,11 @@ class HTMLClass(object):
 
     def read_result(self, outdir, xmlfile, resultdict):
         """This method will read each of the xml files, get its contents and returns a dictionary."""
-        tree = ET.parse(os.path.join(outdir, xmlfile))
-        root = tree.getroot()
+        tree  = ET.parse(os.path.join(outdir, xmlfile))
+        root  = tree.getroot()
         file_ = xmlfile.split(".")
         file_ = file_[0]
-        resultdict[file_] = {"duration":None, "fail":None, "browser":None, "name":file_, "pass":None}
+        resultdict[file_] = {"duration":None, "fail":None, "browser":None, "name":file_, "pass":None, "os":None, "error":None}
         x = 1
         for ts in root.iter('testcase'):
             result = ts.attrib
@@ -130,7 +144,9 @@ class HTMLClass(object):
             tsNode.setAttribute("name", tc_subdict.get("name"))
             tsNode.setAttribute("pass", tc_subdict.get("pass"))
             tsNode.setAttribute("fail", tc_subdict.get("fail"))
+            tsNode.setAttribute("os", tc_subdict.get("os"))
             tsNode.setAttribute("browser", tc_subdict.get("browser"))
+            tsNode.setAttribute("error", tc_subdict.get("error"))
             if not tc_subdict.get("pass") == None:
                 total_pass = total_pass + int(tc_subdict.get("pass"))
             if not tc_subdict.get("fail") == None:

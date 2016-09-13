@@ -23,24 +23,28 @@ class TestDict(object):
 
         if ts in keys:
             self.value_dict_ = {}
-            self.value_dict_["passed"] = data["passed"]
-            self.value_dict_["failed"] = data["failed"]
+            self.value_dict_["passed"]   = data["passed"]
+            self.value_dict_["failed"]   = data["failed"]
             self.value_dict_["duration"] = data["duration"]
-            self.value_dict_["browser"] = data["browser"]
+            self.value_dict_["os"]       = data["os"]
+            self.value_dict_["browser"]  = data["browser"]
+            self.value_dict_["error"]    = data["error"]
             self.tc_dict[tc] = self.value_dict_
-            self.tc_list = self.tc_dict
-            self.dict_[ts] = self.tc_list
+            self.tc_list     = self.tc_dict
+            self.dict_[ts]   = self.tc_list
             self.count += 1
         else:
             self.tc_dict = {}
             self.value_dict = {}
-            self.value_dict["passed"] = data["passed"]
-            self.value_dict["failed"] = data["failed"]
+            self.value_dict["passed"]   = data["passed"]
+            self.value_dict["failed"]   = data["failed"]
             self.value_dict["duration"] = data["duration"]
-            self.value_dict["browser"] = data["browser"]
+            self.value_dict["os"]       = data["os"]
+            self.value_dict["browser"]  = data["browser"]
+            self.value_dict["error"]    = data["error"]
             self.tc_dict[tc] = self.value_dict
-            self.tc_list = self.tc_dict
-            self.dict_[ts] = self.tc_list
+            self.tc_list     = self.tc_dict
+            self.dict_[ts]   = self.tc_list
 
         self.dict_
 
@@ -73,7 +77,9 @@ class TestDict(object):
             tsNode.setAttribute("pass", tc_subdict.get("passed"))
             tsNode.setAttribute("fail", tc_subdict.get("failed"))
             tsNode.setAttribute("duration", "%.3f" % float(tc_subdict.get("duration")))
+            tsNode.setAttribute("os", tc_subdict.get("os"))
             tsNode.setAttribute("browser", tc_subdict.get("browser"))
+            tsNode.setAttribute("error", tc_subdict.get("error"))
             total_pass = total_pass + int(tc_subdict.get("passed"))
             total_fail = total_fail + int(tc_subdict.get("failed"))
             total_time = total_time + float(tc_subdict.get("duration"))

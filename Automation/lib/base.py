@@ -1,8 +1,9 @@
-
+import os
 import unittest
 import sys
 import new
 import time
+import platform
 from selenium import webdriver
 from sauceclient import SauceClient
 from lib.config import config
@@ -12,9 +13,9 @@ from lib.platformCount import *
 from lib.generateXml import *
 from lib.generateHtml import *
 
-logger = Logger()
+logger    = Logger()
 platforms = config.browser
-pc = PlatformCount()
+pc        = PlatformCount()
 
 def on_platforms(platforms):
     def decorator(base_class):
@@ -86,10 +87,14 @@ class BaseTest(unittest.TestCase):
         tc_name = id_[2]
 
         if config.exec_mode == 'local':
+            screenshot_error = None
             if not status:
                 self.driver.save_screenshot('.\logs\%s.png' % self.__name__)
-            value = self.polish_result(tg_name, tc_name, status, self.browser)
+                screenshot_error = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__+".png")
+            OS = platform.system() + " " + platform.release()
+            value = self.polish_result(tg_name, tc_name, status, self.browser, OS, screenshot_error)
         elif config.exec_mode == 'remote':
+            screenshot_error = None
             sauce_client = SauceClient(BaseTest.username, BaseTest.access_key)
             sauce_client.jobs.update_job(self.driver.session_id, passed=status)
             # test_name = "%s_%s" % (type(self).__name__, self.__name__)
@@ -97,7 +102,8 @@ class BaseTest(unittest.TestCase):
             #    outfile.write("SauceOnDemandSessionID=%s job-name=%s\n" % (self.driver.session_id, test_name))
             self.test_attrib = sauce_client.jobs.get_job_attributes(self.driver.session_id)
             browser = self.test_attrib["browser"]
-            value   = self.polish_result(tg_name, tc_name, status, browser)
+            OS      = self.test_attrib["os"]
+            value   = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error)
         self.driver.implicitly_wait(5)
 
         self.driver.quit()
@@ -111,7 +117,6 @@ class BaseTest(unittest.TestCase):
         cls.tunnel_id  = config.tunnel_id
         cls.username   = config.username
         cls.access_key = config.accesskey
-
         cls.selenium_port = config.selenium_port
         if (cls.selenium_port != '') and (cls.selenium_port is not None):
             cls.selenium_host = "localhost"
@@ -124,9 +129,10 @@ class BaseTest(unittest.TestCase):
         cls.outdir = cls.xresult.create_xml(cls.xresult.testDict)
         x          = pc.pfCount - 1
         pc.pfCount = x
-        cls.hreport.create_html(cls.outdir)
+        if x == 0:
+            cls.hreport.create_html(cls.outdir)
 
-    def polish_result(self, tg_name, tc_name, status, browser):
+    def polish_result(self, tg_name, tc_name, status, browser, OS, screenshot_error):
         value  = {}
         passed = 0
         failed = 0
@@ -135,7 +141,7 @@ class BaseTest(unittest.TestCase):
         else:
             failed = 1
         self.endTime = time.time()
-        durTime = self.endTime - self.startTime
+        durTime = (self.endTime - self.startTime) + 3
 
         if config.exec_mode == 'local':
             value["testsuite"] = tg_name
@@ -144,6 +150,8 @@ class BaseTest(unittest.TestCase):
             value["failed"]    = str(failed)
             value["duration"]  = str(durTime)
             value["browser"]   = browser
+            value["os"]        = OS
+            value["error"]     = screenshot_error
         elif config.exec_mode == 'remote':
             value["testsuite"] = tg_name
             value["testcase"]  = tc_name
@@ -151,4 +159,6 @@ class BaseTest(unittest.TestCase):
             value["failed"]    = str(failed)
             value["duration"]  = str(durTime)
             value["browser"]   = browser
+            value["os"]        = OS
+            value["error"]     = screenshot_error
         return value
