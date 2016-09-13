@@ -13,9 +13,10 @@ from lib.platformCount import *
 from lib.generateXml import *
 from lib.generateHtml import *
 
-logger    = Logger()
+logger = Logger()
 platforms = config.browser
-pc        = PlatformCount()
+pc = PlatformCount()
+
 
 def on_platforms(platforms):
     def decorator(base_class):
@@ -24,7 +25,7 @@ def on_platforms(platforms):
             d = dict(base_class.__dict__)
             d['desired_capabilities'] = platform
             # TODO: name = "Test Suite Name"!
-            name       = "%s_%s" % (base_class.__name__, i + 1)
+            name = "%s_%s" % (base_class.__name__, i + 1)
             pc.pfCount = i + 1
             module[name] = new.classobj(name, (base_class,), d)
 
@@ -79,9 +80,9 @@ class BaseTest(unittest.TestCase):
 
     # tearDown runs after each test case
     def tearDown(self):
-        status  = (sys.exc_info() == (None, None, None))
-        id_     = self.id()
-        id_     = id_.split(".")
+        status = (sys.exc_info() == (None, None, None))
+        id_ = self.id()
+        id_ = id_.split(".")
         tg_name = id_[1]
         tg_name = tg_name + "_" + str(pc.pfCount)
         tc_name = id_[2]
@@ -90,7 +91,7 @@ class BaseTest(unittest.TestCase):
             screenshot_error = None
             if not status:
                 self.driver.save_screenshot('.\logs\%s.png' % self.__name__)
-                screenshot_error = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__+".png")
+                screenshot_error = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__ + ".png")
             OS = platform.system() + " " + platform.release()
             value = self.polish_result(tg_name, tc_name, status, self.browser, OS, screenshot_error)
         elif config.exec_mode == 'remote':
@@ -102,8 +103,8 @@ class BaseTest(unittest.TestCase):
             #    outfile.write("SauceOnDemandSessionID=%s job-name=%s\n" % (self.driver.session_id, test_name))
             self.test_attrib = sauce_client.jobs.get_job_attributes(self.driver.session_id)
             browser = self.test_attrib["browser"]
-            OS      = self.test_attrib["os"]
-            value   = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error)
+            OS = self.test_attrib["os"]
+            value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error)
         self.driver.implicitly_wait(5)
 
         self.driver.quit()
@@ -111,11 +112,11 @@ class BaseTest(unittest.TestCase):
 
     @classmethod
     def setup_class(cls):
-        cls.xresult    = TestDict()
-        cls.hreport    = HTMLClass()
-        cls.build_tag  = config.build_tag
-        cls.tunnel_id  = config.tunnel_id
-        cls.username   = config.username
+        cls.xresult = TestDict()
+        cls.hreport = HTMLClass()
+        cls.build_tag = config.build_tag
+        cls.tunnel_id = config.tunnel_id
+        cls.username = config.username
         cls.access_key = config.accesskey
         cls.selenium_port = config.selenium_port
         if (cls.selenium_port != '') and (cls.selenium_port is not None):
@@ -127,13 +128,13 @@ class BaseTest(unittest.TestCase):
     @classmethod
     def teardown_class(cls):
         cls.outdir = cls.xresult.create_xml(cls.xresult.testDict)
-        x          = pc.pfCount - 1
+        x = pc.pfCount - 1
         pc.pfCount = x
         if x == 0:
             cls.hreport.create_html(cls.outdir)
 
     def polish_result(self, tg_name, tc_name, status, browser, OS, screenshot_error):
-        value  = {}
+        value = {}
         passed = 0
         failed = 0
         if status:
@@ -145,20 +146,20 @@ class BaseTest(unittest.TestCase):
 
         if config.exec_mode == 'local':
             value["testsuite"] = tg_name
-            value["testcase"]  = tc_name
-            value["passed"]    = str(passed)
-            value["failed"]    = str(failed)
-            value["duration"]  = str(durTime)
-            value["browser"]   = browser
-            value["os"]        = OS
-            value["error"]     = screenshot_error
+            value["testcase"] = tc_name
+            value["passed"] = str(passed)
+            value["failed"] = str(failed)
+            value["duration"] = str(durTime)
+            value["browser"] = browser
+            value["os"] = OS
+            value["error"] = screenshot_error
         elif config.exec_mode == 'remote':
             value["testsuite"] = tg_name
-            value["testcase"]  = tc_name
-            value["passed"]    = str(passed)
-            value["failed"]    = str(failed)
-            value["duration"]  = str(durTime)
-            value["browser"]   = browser
-            value["os"]        = OS
-            value["error"]     = screenshot_error
+            value["testcase"] = tc_name
+            value["passed"] = str(passed)
+            value["failed"] = str(failed)
+            value["duration"] = str(durTime)
+            value["browser"] = browser
+            value["os"] = OS
+            value["error"] = screenshot_error
         return value
