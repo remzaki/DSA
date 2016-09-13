@@ -31,6 +31,7 @@ class Elements:
         "add_to_cart_bttn"             : [".div20fL childAlignCenter", ".quotePlanApply",
                              ".btn btn-primary applyBtn btn-sm",
                              "onclick:javascript:return AddToCart('RegularPlans_<sessionid?>_IsSelected','RegularPlans_<sessionid?>_QuoteHealthPlanId', this);"],
+<<<<<<< HEAD
         "expand_coverage_dlg"          : ["#expandYourCoverageModal .coverageModalContent"],
         "no_thanks_bttn"               : ["#anchorSkip"],
         "shopping_cart_page"           : [".brokerCensusHeader"],
@@ -43,6 +44,20 @@ class Elements:
         "height_in_lst"                : ["select#ctl00_cphMain_ddlPrimaryin_ddlPrimaryinddlMainInput"],
         "weight_lbs_fld"               : ["#ctl00_cphMain_txtPrimaryWeight_txtPrimaryWeighttxtMainInput"],
         "physical_address_fld"         : [
+=======
+        "expand_coverage_dlg": ["#expandYourCoverageModal .coverageModalContent"],
+        "no_thanks_bttn": ["#expandYourCoverageModal a#anchorSkip"],
+        "shopping_cart_page": [".brokerCensusHeader"],
+        "apply_bttn": ["input[value=Apply]"],
+        "applicant_info_page": ["#ctl00_lblPageTitle"],
+        "firstname_fld": ["#ctl00_cphMain_txtPrimaryFirstName_txtPrimaryFirstNametxtMainInput"],
+        "middlename_fld": ["#ctl00_cphMain_txtPrimaryMiddleName_txtPrimaryMiddleNametxtMainInput"],
+        "lastname_fld": ["#ctl00_cphMain_txtPrimaryLastName_txtPrimaryLastNametxtMainInput"],
+        "height_ft_lst": ["select#ctl00_cphMain_ddlPrimaryft_ddlPrimaryftddlMainInput"],
+        "height_in_lst": ["select#ctl00_cphMain_ddlPrimaryin_ddlPrimaryinddlMainInput"],
+        "weight_lbs_fld": ["#ctl00_cphMain_txtPrimaryWeight_txtPrimaryWeighttxtMainInput"],
+        "physical_address_fld": [
+>>>>>>> 9c19e369e4526155abea948c91d8a1a5302bee01
             "#ctl00_cphMain_ucPrimaryPrimaryAddress_txtAddressLine1_txtAddressLine1txtMainInput"],
         "physical_city_fld"            : ["#ctl00_cphMain_ucPrimaryPrimaryAddress_txtCity_txtCitytxtMainInput"],
         "primary_home_area_fld"        : ["#ctl00_cphMain_txtPrimaryHome_txtPrimaryHomespcMainInputtxtAreaCode"],
@@ -132,9 +147,14 @@ class Elements:
         "cart_checkout_page"           : ["#ctl00_cphMain_pnlApplicationTypes"],
         "coverage_start_date_fld"      : [".dp-applied",
                                     "#ctl00_cphMain_ucTermLifeCriticalIllness_txtEffectiveDate_txtEffectiveDatetxtMainInput"],
+<<<<<<< HEAD
         "credit_card_page"             : [".maintitle app-sidebar-titletxt", ".maintitletext app-sidebar-curs",
                              ".app-sidebar-titlelbl", "#ctl00_lblPageTitle"],
         "credit_card_type_lst"         : [
+=======
+        "credit_card_page": ["#ctl00_cphMain_ucCreditCardDetails_divCreditCard"],
+        "credit_card_type_lst": [
+>>>>>>> 9c19e369e4526155abea948c91d8a1a5302bee01
             "select#ctl00_cphMain_ucCreditCardDetails_ddlCreditCardType_ddlCreditCardTypeddlMainInput"],
         "credit_card_num_fld"          : [
             "input#ctl00_cphMain_ucCreditCardDetails_txtCreditCardNumber_txtCreditCardNumbertxtMainInput"],
@@ -210,7 +230,7 @@ class Elements:
     def get_data(self, name):
         elements = False
         try:
-            elements = self.dict[name]
+            elements = self.dict[name][0]
         except KeyError:
             elements = False
         finally:

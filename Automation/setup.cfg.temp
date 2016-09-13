@@ -9,6 +9,9 @@ execution = local
 # timeout = amount time in seconds, used in overall automation methods
 timeout = 60
 
+# debug_stop = step number that you want to stop when debugging
+debug_stop = 
+
 
 # Setup for execution = local
 [local]

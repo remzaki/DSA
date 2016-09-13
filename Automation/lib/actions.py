@@ -1,11 +1,15 @@
 import logging
 from lib.config import config
 from elements import Elements
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException, NoSuchElementException
+from selenium.common.exceptions import TimeoutException, \
+    StaleElementReferenceException, \
+    NoSuchElementException, \
+    WebDriverException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
+from selenium import webdriver
 import os
 import locale
 
@@ -15,8 +19,13 @@ class Actions(object):
     Contains all the action method performed in a Test Case.
     """
 
-    elements = Elements()
-    log = None
+    def __init__(self):
+        # some class variables
+        self.elements = Elements()
+        self.log = None
+        self.w8 = None
+        self.asset = None
+        self.driver = None
 
     def logger(self, logger_name):
         self.log = logging.getLogger(logger_name)
@@ -25,9 +34,12 @@ class Actions(object):
         """General trimming helper purposes. Arguments:
         p = str(any string)
         """
-        p = p.replace('<', '')
-        p = p.replace('>', '')
-        p = p.strip()
+        if '<' in p:
+            p = p.replace('<', '')
+            p = p.replace('>', '')
+            p = p.strip()
+        else:
+            p = False
 
         return p
 
@@ -37,19 +49,20 @@ class Actions(object):
             element = driver.find_element_by_css_selector(elem)
         except Exception, e:
             self.log.error('Get WebElement Exception: %s', e)
-            raise Exception
+            self.asset.assertTrue(False, 'Get WebElement Exception: %s' % e)
         finally:
             return element
 
-    def wait_global(self, driver):
-
-        # declaring global variable wait
-        self.wait = WebDriverWait(driver, timeout=config.timeout)
+    def setup_global(self, obj):
+        # declaring global stuffs
+        self.asset = obj
+        self.driver = self.asset.driver
+        self.w8 = WebDriverWait(obj.driver, timeout=config.timeout)
 
     def testname(self, step, obj, l=None):
         self.logger(obj._testMethodName)
-        self.log.info('Test Name: ' + l[0])
-        self.wait_global(obj.driver)
+        self.log.info('Test Name: %s', l[0])
+        self.setup_global(obj)
 
     def description(self, step, obj, l=None):
         self.logger(obj._testMethodName)
@@ -60,11 +73,13 @@ class Actions(object):
         self.logger('%s-%s.Actions.url.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
+        driver = obj.driver
         url = l[0]
         exp_title = l[1]
 
         # access the URL
-        obj.driver.get(url)
+        driver.get(url)
+        driver.implicitly_wait(config.timeout)
         actual_title = obj.driver.title
 
         # try:
@@ -72,7 +87,7 @@ class Actions(object):
         #     element_present = ec.title_is(exp_title)
         #     element_present.t
         #     # WebDriverWait(obj.driver, timeout=5).until(element_present)
-        #     self.wait.until(element_present)
+        #     self.w8.until(element_present)
         # except TimeoutException:
         #     self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, actual_title))
 
@@ -91,39 +106,46 @@ class Actions(object):
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
-        edict = self.trim_name(l[1])
 
-        got_data = self.elements.get_data(edict)
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            got_data = l[1]
+
         if got_data:
             self.log.debug('Got element "%s" = %s', edict, got_data)
-            element = got_data[0].strip()
+            element = got_data.strip()
 
-            t = 3
-            self.log.info('Implicit wait of %s seconds', t)
-            driver.implicitly_wait(t)
+            # t = config.timeout
+            # self.log.info('Implicit wait of %s seconds', t)
+            # driver.implicitly_wait(t)
 
-            self.log.info('Get WebElement %s')
+            self.log.info('Get WebElement %s', element)
             e = self.getset_elem(driver, element)
 
             if e is not None:
                 try:
-                    print('-%s is displayed: %s' % (edict, e.is_displayed()))
-                    print('-%s is enabled: %s' % (edict, e.is_enabled()))
+                    self.log.debug('Waiting until the element is not displayed')
+                    # print('-%s is displayed: %s' % (edict, e.is_displayed()))
+                    # print('-%s is enabled: %s' % (edict, e.is_enabled()))
                     presence_of = ec.visibility_of(e)
-                    WebDriverWait(driver, 10).until_not(presence_of)
+                    # WebDriverWait(driver, 10).until_not(presence_of)
+                    self.w8.until_not(presence_of)
                 except TimeoutException, exc:
-                    print('wait(TimeoutException): %s' % exc)
+                    # print('wait(TimeoutException): %s' % exc)
+                    self.log.warning('TimeoutExcepion: %s', exc)
                 except StaleElementReferenceException, exc:
-                    print(exc)
+                    self.log.warning('StaleElementReferenceException: %s', exc)
                 except NoSuchElementException, exc:
-                    print(exc)
+                    self.log.warning('NoSuchElementException: %s', exc)
                 except Exception, exc:
-                    print('wait(Exception): %s' % exc)
-                print('-%s is displayed: %s' % (edict, e.is_displayed()))
-                print('-%s is enabled: %s' % (edict, e.is_enabled()))
+                    # print('wait(Exception): %s' % exc)
+                    self.log.warning('Exception: %s', exc)
+                # print('-%s is displayed: %s' % (edict, e.is_displayed()))
+                # print('-%s is enabled: %s' % (edict, e.is_enabled()))
             else:
-                print('element is none!!!')
-
+                self.log.warning('Unable to process element %s = %s', element, e)
 
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
@@ -135,25 +157,43 @@ class Actions(object):
 
         driver = obj.driver
         data = l[0]
-        edict = self.trim_name(l[1])
 
-        got_data = self.elements.get_data(edict)
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            got_data = l[1]
+
         if got_data:
-            element = got_data[0].strip()
+            element = got_data.strip()
+
+            self.log.info('Get WebElement %s', element)
             e = self.getset_elem(driver, element)
             if e is not None:
-                if e.is_enabled():
+                # try to know if element field is enabled
+                self.log.debug('Check if Element "%s" is Enabled', element)
+                enabled = False
+                try:
+                    enabled = e.is_enabled()
+                except Exception, exc:
+                    self.log.error('Exception: %s', exc)
+
+                if enabled:  # if its enabled
+                    self.log.debug('Clear text then input data "%s"', data)
                     try:
                         e.clear()
                         e.send_keys(data)
                         e.send_keys(Keys.TAB)
-                    except Exception:
-                        raise Exception
+                    except Exception, exc:
+                        self.log.error('Exception: %s', exc)
+                        obj.assertTrue(False, 'Exception: %s' % exc)
                 else:
                     self.log.error('Element %s is not enabled', edict)
                     obj.assertTrue(e.is_enabled(), 'Element %s is not enabled' % edict)
             else:
-                print('element %s is %s' % (edict, e))
+                # print('element %s is %s' % (edict, e))
+                self.log.warning('Unable to process element %s = %s', element, e)
+
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
@@ -166,44 +206,70 @@ class Actions(object):
         self.logger('%s-%s.Actions.verify.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
+        if ':' in l[0]:
+            data = l[0].split(':')
+        else:
+            self.log.error('Method was called but with no proper Instruction on argument')
+            obj.assertTrue(False, 'Method was called but with no proper Instruction on argument')
+
         driver = obj.driver
-        data = l[0].split(':')
         way = data[0].strip()
         exp_value = data[1].strip()
-        edict = self.trim_name(l[1])
 
-        got_data = self.elements.get_data(edict)
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            got_data = l[1]
+
         if got_data:
-            element = got_data[0].strip()
+            element = got_data.strip()
+
+            self.log.info('Get WebElement %s', element)
             e = self.getset_elem(driver, element)
 
             if way.lower() == 'displayed':
                 try:
                     presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
-                    WebDriverWait(driver, 10).until(presence_of)
-                    if not e.is_displayed:
-                        self.log.error('Element not displayed %s[%s]', edict, element)
-                        obj.assertTrue(False, 'Element not displayed %s[%s]' % (edict, element))
+                    # WebDriverWait(driver, 10).until(presence_of)
+                    self.w8.until(presence_of)
                 except TimeoutException, exc:
-                    print('verify() TimeoutException %s' % exc)
+                    # print('verify() TimeoutException %s' % exc)
+                    self.log.warning('TimeoutException: %s', exc)
                 except Exception, exc:
-                    print('verify() %s' % exc)
+                    # print('verify() %s' % exc)
+                    self.log.warning('Exception: %s', exc)
+
+                displayed = False
+                try:
+                    displayed = e.is_displayed()
+                except Exception, exc:
+                    self.log.error('Checking if Element is Displayed Exception: %s', exc)
+
+                if not displayed:
+                    self.log.error('Element not displayed %s[%s]', edict, element)
+                    obj.assertTrue(False, 'Element not displayed %s[%s]' % (edict, element))
+
             elif way.lower() == 'expected':
-                act_value = e.text
+                act_value = ''
                 try:
                     presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
                     WebDriverWait(driver, 10).until(presence_of)
-                    if act_value.strip() != exp_value:
-                        self.log.error('Expected Value does not match with the Actual (%s)=(%s)', exp_value, act_value)
-                        obj.assertTrue(False,
-                                       'Expected Value does not match with the Actual (%s)=(%s)' % (exp_value, act_value))
+                    act_value = e.text
                 except TimeoutException, exc:
-                    print('verify() TimeoutException %s' % exc)
+                    self.log.warning('TimeoutException: %s', exc)
                 except Exception, exc:
-                    print ('verify() %s' % exc)
+                    self.log.warning('Exception: %s', exc)
+
+                if act_value.strip() != exp_value:
+                    self.log.error('Expected Value does not match with the Actual "%s"!="%s"', exp_value, act_value)
+                    obj.assertTrue(False,
+                                   'Expected Value does not match with the Actual "%s"!="%s"' % (exp_value, act_value))
+
             else:
                 self.log.error('Verify command "%s" is not supported', way)
                 obj.assertTrue(False, 'Verify command "%s" is not supported' % way)
+
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
@@ -214,67 +280,52 @@ class Actions(object):
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
-        edict = self.trim_name(l[1])
-        print('-'*10 + edict + '-'*10)
 
-        got_data = self.elements.get_data(edict)
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            got_data = l[1]
+
         if got_data:
             self.log.debug('Element %s found with value %s', edict, got_data)
-            element = got_data[0].strip()
+            element = got_data.strip()
             e = self.getset_elem(driver, element)
-
-            # try to get the element display status
-            # try:
-            #     e_displayed = e.is_displayed()
-            # except Exception, exc:
-            #     print('-display exception: %s' % exc)
-            # finally:
-            #     print('%s is displayed %s' % (edict, e_displayed))
-
-            # try to get the element enable status
             e_enabled = None
             try:
+                self.log.debug('Wait until the Element is Clickable')
                 enabled = ec.element_to_be_clickable((By.CSS_SELECTOR, element))
-                WebDriverWait(driver, 10).until(enabled)
-                e_enabled = e.is_enabled()
+                btn = self.w8.until(enabled)
+                e_enabled = True
+                # self.log.debug('Get Element is_enabled() value')
+                # e_enabled = e.is_enabled()
+            except TimeoutException, exc:
+                self.log.warning('TimeoutException: %s', exc)
             except Exception, exc:
-                print('-enable exception: %s' % exc)
+                self.log.warning('Exception: %s', exc)
             finally:
-                print('%s is enabled %s' % (edict, e_enabled))
+                self.log.debug('Element is_enabled() = %s', e_enabled)
 
             if e_enabled:
-                print('se used')
-                e.click()
+                try:
+                    self.log.info('Performing the click on %s', edict)
+                    btn.click()
+                except Exception, exc:
+                    self.log.error('Exception: %s', exc)
+                    obj.assertTrue(False, 'Exception: %s' % exc)
             else:
-                print('js used')
-                print(driver.execute_script("return document.querySelector('" + element + "')"))
-                js = driver.execute_script(
-                    "var a = document.querySelector('" + element + "');"
-                                                                   "if(typeof(a) != null){"
-                                                                   "a.click();"
-                                                                   "console.log('hello world!')"
-                                                                   "} else{"
-                                                                   "return 'element typeof() is = ' + typeof(a)}")
-                print('js log > %s' % js)
-
-            # try:
-            #     self.log.debug('Performing click @ %s', e)
-            #     driver.implicitly_wait(1)
-            #     try:
-            #         e = self.getset_elem(driver, element)
-            #         enabled = ec.element_to_be_clickable(e)
-            #         WebDriverWait(driver, 5).until(enabled)
-            #         print('se used')
-            #         e.click()
-            #     except TimeoutException, exc:
-            #         print("Timeout exception %s" % exc)
-            #     except Exception, exc:
-            #         print('js used')
-            #         driver.execute_script("document.querySelector('" + element + "').click()")
-            #         print('- %s' % exc)
-            #
-            # except Exception, exc:
-            #     print('-- %s' % exc)
+                self.log.warning('PERHAPS WE SHOULD USE JAVASCRIPT CLICK EXECUTION!?')
+                obj.assertTrue(False, 'PERHAPS WE SHOULD USE JAVASCRIPT CLICK EXECUTION!?')
+                # print('js used')
+                # print(driver.execute_script("return document.querySelector('" + element + "')"))
+                # js = driver.execute_script(
+                #     "var a = document.querySelector('" + element + "');"
+                #                                                    "if(typeof(a) != null){"
+                #                                                    "a.click();"
+                #                                                    "console.log('hello world!')"
+                #                                                    "} else{"
+                #                                                    "return 'element typeof() is = ' + typeof(a)}")
+                # print('js log > %s' % js)
 
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
@@ -288,46 +339,86 @@ class Actions(object):
         arr = l[0].split(':')
         field = arr[0].strip()
         selection = arr[1].strip()
-        edict = self.trim_name(l[1])
 
-        got_data = self.elements.get_data(edict)
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            got_data = l[1]
+
         if got_data:
-            element = got_data[0].strip()
+            element = got_data.strip()
             if 'select' in element:
                 self.log.info('Method is for <select> with <option>')
                 e = self.getset_elem(driver, element)
-                if e.is_enabled():
-                    for opt in e.find_elements_by_tag_name('option'):
-                        if opt.text == selection:
-                            opt.click()
-                            break
+
+                # try to know if element field is enabled
+                self.log.debug('Check if Element "%s" is Enabled', element)
+                e_enabled = False
+                try:
+                    e_enabled = e.is_enabled()
+                except Exception, exc:
+                    self.log.error('Exception: %s', exc)
+
+                if e_enabled:
+                    self.log.info('Loop thru the options and click the right one')
+                    try:
+                        for opt in e.find_elements_by_tag_name('option'):
+                            if opt.text == selection:
+                                opt.click()
+                                break
+                    except Exception, exc:
+                        self.log.error('Exception: %s', exc)
                 else:
                     self.log.error('Element %s is not enabled', edict)
                     obj.assertTrue(e.is_enabled(), 'Element %s is not enabled' % edict)
+
             elif 'radio' in element:
                 self.log.info('Method is for <input type="radio">')
                 if 'questions' in field.lower():
                     self.log.info('Method for all Questions')
                     radio_btns = driver.find_elements_by_css_selector(element)
-                    for i, radio_btn in enumerate(radio_btns):
-                        e_id = radio_btn.get_attribute('id')
-                        self.log.debug('Radio button id: %s', e_id)
-                        try:
-                            wait = WebDriverWait(driver, 5)
-                            btn = wait.until(ec.element_to_be_clickable((By.ID, e_id)))
-                            btn.click()
-                        except Exception, exc:
-                            self.log.warning('select(Exception): This ID is not clickable -> %s', e_id)
+                    if radio_btns:
+                        for i, radio_btn in enumerate(radio_btns):
+                            e_id = radio_btn.get_attribute('id')
+                            # self.log.debug('Radio button id: %s', e_id)
+
+                            try:
+                                # e_enabled = ec.element_to_be_clickable((By.ID, e_id))
+                                e_enabled = radio_btn.is_displayed()
+                            finally:
+                                self.log.debug('Visibility of Element "%s" is %s', e_id, e_enabled)
+
+                            if e_enabled:
+                                try:
+                                    # wait = WebDriverWait(driver, 3)
+                                    btn = self.w8.until(ec.element_to_be_clickable((By.ID, e_id)))
+                                    # self.log.debug('Click %s', btn)
+                                    btn.click()
+                                except TimeoutException, exc:
+                                    self.log.warning('TimeoutException: %s', exc)
+                                except Exception, exc:
+                                    self.log.warning('Exception: %s', e_id)
+                    else:
+                        self.log.error('Unable to process Element "%s" = %s', element, radio_btns)
+                        obj.assertTrue(False, 'Unable to process Element "%s" = %s' % (element, radio_btns))
+
                 elif 'question' in field.lower():
                     self.log.info('Method for a Question')
+                    self.log.error('Not yet implemented!')
+                    obj.assertTrue(False, 'Not yet implemented!')
+
                 else:
                     self.log.info('Method for normal Radio button')
                     try:
-                        wait = WebDriverWait(driver, 5)
-                        btn = wait.until(ec.element_to_be_clickable((By.CSS_SELECTOR, element)))
+                        # wait = WebDriverWait(driver, 5)
+                        btn = self.w8.until(ec.element_to_be_clickable((By.CSS_SELECTOR, element)))
+                        self.log.debug('Click %s', btn)
                         btn.click()
+                    except TimeoutException, exc:
+                        self.log.warning('TimeoutException: %s', exc)
                     except Exception, exc:
-                        self.log.warning('select(Exception): This ID is not clickable -> %s', element)
+                        self.log.warning('Exception: %s', element)
 
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
@@ -342,51 +433,76 @@ class Actions(object):
         arr_keys = l[1].split('|')
 
         edict = self.trim_name(arr_keys[0])
-        got_data = self.elements.get_data(edict)
-        if got_data:
-            element = got_data[0].strip()
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            got_data = arr_keys[0]
 
+        if got_data:
+            element = got_data.strip()
+
+            self.log.info('Retrieve List of Plans')
             flag = False
             plan_list = driver.find_elements_by_css_selector(element)
-            for plan in plan_list:
-                score = 1
-                for x in range(1, len(arr_keys)):
-                    edict = self.trim_name(arr_keys[x])
-                    got_data = self.elements.get_data(edict)
-                    if got_data:
-                        element = got_data[0].strip()
+            if plan_list:
+                self.log.info('Check if there is a match')
+                for plan in plan_list:
+                    score = 1
+                    top_score = len(arr_keys)-1
 
-                        e = self.getset_elem(plan, element)
-                        txt = e.text
-                        val = arr_values[x].strip()
-
-                        if "." in val:  # check if value has a decimal, if true then convert it as a currency
-                            try:
-                                val = '${:.2f}'.format(float(val))
-                            except Exception, exc:
-                                # print(exc)
-                                pass
+                    self.log.info('Check if plan "%s" matches', plan)
+                    for x in range(1, len(arr_keys)):
+                        edict = self.trim_name(arr_keys[x])
+                        if edict:
+                            got_data = self.elements.get_data(edict)
                         else:
-                            try:    # try to convert it into a integer
-                                val = '${:,d}'.format(int(val))
+                            got_data = arr_keys[x]
+
+                        if got_data:
+                            element = got_data.strip()
+
+                            e = self.getset_elem(plan, element)
+                            try:
+                                txt = e.text
                             except Exception, exc:
-                                # print(exc)
-                                pass
+                                self.log.error('Exception: %s', exc)
+                                obj.assertTrue(False, 'Exception: %s' % exc)
 
-                        if txt == val:
-                            score += 1
-                        # print('%d: %s <VS> %s' % (score, txt, val))
-                    else:
-                        self.log.error('Element Dictionary "%s" is not found', edict)
-                        obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
+                            val = arr_values[x].strip()
 
-                if score == len(arr_keys)-1:
-                    try:
-                        e.click()
-                        flag = True
-                        break
-                    except Exception:
-                        raise Exception
+                            if "." in val:  # check if value has a decimal, if true then convert it as a currency
+                                try:
+                                    val = '${:.2f}'.format(float(val))
+                                except Exception, exc:
+                                    self.log.error('Float Format Exception: %s', exc)
+                                    obj.assertTrue(False, 'Float Format Exception: %s' % exc)
+                            else:
+                                try:    # try to convert it into a integer
+                                    val = '${:,d}'.format(int(val))
+                                except Exception, exc:
+                                    # ignore Exceptions
+                                    self.log.warning('Int Format Exception: %s', exc)
+
+                            if txt == val:
+                                score += 1
+                                self.log.debug('Point score %d/%d', score, top_score)
+                        else:
+                            self.log.error('Element Dictionary "%s" is not found', edict)
+                            obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
+
+                    if score == top_score:
+                        self.log.debug('Found a match %d/%d', score, top_score)
+                        self.log.debug('Click Element "%s"', element)
+                        try:
+                            e.click()
+                            flag = True
+                            break
+                        except Exception, exc:
+                            self.log.error('Exception: %s', exc)
+                            obj.assertTrue(False, 'Exception: %s' % exc)
+            else:
+                self.log.error('Unable to process Element "%s" = %s', element, plan_list)
+                obj.assertTrue(False, 'Unable to process Element "%s" = %s' % (element, plan_list))
 
             if not flag:
                 self.log.error('%s Plan was not found with details %s', score, arr_values)

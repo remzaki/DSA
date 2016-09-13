@@ -16,11 +16,13 @@ class config(object):
     parallelism = None
     parallel = ''
     timeout = 0
+    stop_at_step = None
 
     config = ConfigParser.RawConfigParser()
     config.read(config_file)
 
     timeout = config.getfloat('setup', 'timeout')
+    stop_at_step = config.getint('setup', 'debug_stop')
 
     exec_mode = config.get('setup', 'execution')
     if exec_mode == 'local':
