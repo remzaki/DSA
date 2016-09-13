@@ -1,6 +1,11 @@
 <html>
 <head/>
 <style>
+    h1 {
+        font-size: 26pt;
+        color: gray;
+    }
+
     #tbl1{
         border-collapse: collapse;
         width: 250px;
@@ -9,6 +14,7 @@
     #tbl2{
         width: 650px;
         border-collapse:collapse;
+        border: 1px solid #777;
     }
 
     #th2{
@@ -17,7 +23,15 @@
         text-align: center;
         color: rgb(255, 255, 255);
         background-color: rgb(107, 107, 107);
+        border: 1px solid #777;
     }
+
+	#td0{
+        text-align: left;
+        border-width: 1px;
+        border-style: solid;
+        background-color: rgb(107, 107, 107);
+	}
 
     #td1{
         text-align: left;
@@ -29,32 +43,44 @@
         border-width: 1px;
         border-style: solid;
         text-align: center;
+        border: 1px solid #777;
+
+    }
+
+	#td3{
+        border-width: 1px;
+        border-style: solid;
+        text-align: left;
+        background-color: orange;
     }
 
 </style>
 <br/>
+<h1>Test Report</h1>
+<hr/>
+<div>&nbsp;</div>
 <div><span style="text-decoration: underline; font-weight: bold;">Executive Summary:</span></div>
 <div><span class="Apple-tab-span" style="line-height: 1.42857143; white-space: pre;"></span><span style="line-height: 1.42857143;">&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;</span></div>
 <div>
     <table id='tbl1'>
         <tbody>
             <tr>
-                <td id='td1'>&nbsp;Total tests</td>
+                <td id='td0'><strong>&nbsp;Total tests</strong></td>
                 <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@totaltc@@</td>
             </tr>
 
             <tr>
-                <td id='td1'>&nbsp;Total pass</td>
+                <td id='td0'><strong>&nbsp;Total pass</strong></td>
                 <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@pass@@</td>
             </tr>
 
             <tr>
-                <td id='td1'>&nbsp;Total fail</td>
+                <td id='td0'><strong>&nbsp;Total fail</strong></td>
                 <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@fail@@</td>
             </tr>
 
             <tr>
-                <td id='td1'>&nbsp;Total duration</td>
+                <td id='td0'><strong>&nbsp;Total duration</strong></td>
                 <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@duration@@</td>
             </tr>
 
@@ -73,7 +99,9 @@
                 <th id='th2'>Pass</td>
                 <th id='th2'>Fail</td>
                 <th id='th2'>Duration</td>
+                <th id='th2'>Platform</td>
                 <th id='th2'>Browser</td>
+                <th id='th2'>Error</td>
             </tr>
 @@tableentry@@
         </tbody>
@@ -86,6 +114,5 @@
 
 <br/>
 <br/>
-<p>~not yet final...</p>
 
 </html>
