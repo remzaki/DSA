@@ -157,6 +157,11 @@ class Actions(object):
 
         driver = obj.driver
         data = l[0]
+        if '$' in data:
+            import uuid
+            uid = str(uuid.uuid4()).split('-')
+            data = data.replace('$', uid[1])
+            self.log.info("USERNAME IS %s", data)
 
         edict = self.trim_name(l[1])
         if edict:
@@ -183,10 +188,24 @@ class Actions(object):
                     try:
                         e.clear()
                         e.send_keys(data)
-                        e.send_keys(Keys.TAB)
+                        # self.driver.send_keys(Keys.TAB)
                     except Exception, exc:
                         self.log.error('Exception: %s', exc)
                         obj.assertTrue(False, 'Exception: %s' % exc)
+
+                    try:
+                        the_txt = e.text
+                        if the_txt == '':
+                            the_txt = e.get_attribute('value')
+                    except StaleElementReferenceException:
+                        e = self.getset_elem(driver, element)
+                        the_txt = e.text
+                        if the_txt == '':
+                            the_txt = e.get_attribute('value')
+
+                    if data not in the_txt:
+                        self.log.error('Data "%s" was not entered successfully in %s', data, edict)
+                        obj.assertTrue('Data "%s" was not entered successfully in %s' % (data, edict))
                 else:
                     self.log.error('Element %s is not enabled', edict)
                     obj.assertTrue(e.is_enabled(), 'Element %s is not enabled' % edict)
