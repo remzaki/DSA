@@ -85,7 +85,6 @@ class Actions(object):
         # try:
         #     actual_title = obj.driver.title
         #     element_present = ec.title_is(exp_title)
-        #     element_present.t
         #     # WebDriverWait(obj.driver, timeout=5).until(element_present)
         #     self.w8.until(element_present)
         # except TimeoutException:
@@ -111,7 +110,7 @@ class Actions(object):
         if edict:
             got_data = self.elements.get_data(edict)
         else:
-            got_data = l[1]
+            edict = got_data = l[1]
 
         if got_data:
             self.log.debug('Got element "%s" = %s', edict, got_data)
@@ -142,8 +141,8 @@ class Actions(object):
                 except Exception, exc:
                     # print('wait(Exception): %s' % exc)
                     self.log.warning('Exception: %s', exc)
-                # print('-%s is displayed: %s' % (edict, e.is_displayed()))
-                # print('-%s is enabled: %s' % (edict, e.is_enabled()))
+                    # print('-%s is displayed: %s' % (edict, e.is_displayed()))
+                    # print('-%s is enabled: %s' % (edict, e.is_enabled()))
             else:
                 self.log.warning('Unable to process element %s = %s', element, e)
 
@@ -167,7 +166,7 @@ class Actions(object):
         if edict:
             got_data = self.elements.get_data(edict)
         else:
-            got_data = l[1]
+            edict = got_data = l[1]
 
         if got_data:
             element = got_data.strip()
@@ -193,19 +192,19 @@ class Actions(object):
                         self.log.error('Exception: %s', exc)
                         obj.assertTrue(False, 'Exception: %s' % exc)
 
-                    try:
-                        the_txt = e.text
-                        if the_txt == '':
-                            the_txt = e.get_attribute('value')
-                    except StaleElementReferenceException:
-                        e = self.getset_elem(driver, element)
-                        the_txt = e.text
-                        if the_txt == '':
-                            the_txt = e.get_attribute('value')
-
-                    if data not in the_txt:
-                        self.log.error('Data "%s" was not entered successfully in %s', data, edict)
-                        obj.assertTrue('Data "%s" was not entered successfully in %s' % (data, edict))
+                        # try:
+                        #     the_txt = e.text
+                        #     if the_txt == '':
+                        #         the_txt = e.get_attribute('value')
+                        # except StaleElementReferenceException:
+                        #     e = self.getset_elem(driver, element)
+                        #     the_txt = e.text
+                        #     if the_txt == '':
+                        #         the_txt = e.get_attribute('value')
+                        #
+                        # if data not in the_txt:
+                        #     self.log.error('Data "%s" was not entered successfully in %s', data, edict)
+                        #     obj.assertTrue('Data "%s" was not entered successfully in %s' % (data, edict))
                 else:
                     self.log.error('Element %s is not enabled', edict)
                     obj.assertTrue(e.is_enabled(), 'Element %s is not enabled' % edict)
@@ -239,7 +238,7 @@ class Actions(object):
         if edict:
             got_data = self.elements.get_data(edict)
         else:
-            got_data = l[1]
+            edict = got_data = l[1]
 
         if got_data:
             element = got_data.strip()
@@ -304,7 +303,7 @@ class Actions(object):
         if edict:
             got_data = self.elements.get_data(edict)
         else:
-            got_data = l[1]
+            edict = got_data = l[1]
 
         if got_data:
             self.log.debug('Element %s found with value %s', edict, got_data)
@@ -327,6 +326,12 @@ class Actions(object):
 
             if e_enabled:
                 try:
+                    location = btn.location
+                    self.log.debug('"%s" location: %s', element, location)
+                    js_script = "window.scrollTo(%i, %i)" % (location['x'], location['y'] - 300)
+                    self.log.debug('JS Script: %s', js_script)
+                    driver.execute_script(js_script)
+
                     self.log.info('Performing the click on %s', edict)
                     btn.click()
                 except Exception, exc:
@@ -363,7 +368,7 @@ class Actions(object):
         if edict:
             got_data = self.elements.get_data(edict)
         else:
-            got_data = l[1]
+            edict = got_data = l[1]
 
         if got_data:
             element = got_data.strip()
@@ -467,7 +472,7 @@ class Actions(object):
                 self.log.info('Check if there is a match')
                 for plan in plan_list:
                     score = 1
-                    top_score = len(arr_keys)-1
+                    top_score = len(arr_keys) - 1
 
                     self.log.info('Check if plan "%s" matches', plan)
                     for x in range(1, len(arr_keys)):
@@ -475,7 +480,7 @@ class Actions(object):
                         if edict:
                             got_data = self.elements.get_data(edict)
                         else:
-                            got_data = arr_keys[x]
+                            edict = got_data = arr_keys[x]
 
                         if got_data:
                             element = got_data.strip()
@@ -496,7 +501,7 @@ class Actions(object):
                                     self.log.error('Float Format Exception: %s', exc)
                                     obj.assertTrue(False, 'Float Format Exception: %s' % exc)
                             else:
-                                try:    # try to convert it into a integer
+                                try:  # try to convert it into a integer
                                     val = '${:,d}'.format(int(val))
                                 except Exception, exc:
                                     # ignore Exceptions
@@ -511,8 +516,14 @@ class Actions(object):
 
                     if score == top_score:
                         self.log.debug('Found a match %d/%d', score, top_score)
-                        self.log.debug('Click Element "%s"', element)
                         try:
+                            location = e.location
+                            self.log.debug('"%s" location: %s', element, location)
+                            js_script = "window.scrollTo(%i, %i)" % (location['x'], location['y'] - 300)
+                            self.log.debug('JS Script: %s', js_script)
+                            driver.execute_script(js_script)
+
+                            self.log.debug('Click Element "%s"', element)
                             e.click()
                             flag = True
                             break
