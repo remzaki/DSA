@@ -1,4 +1,5 @@
 import ConfigParser
+from lib.remote import Remote
 
 
 class config(object):
@@ -8,6 +9,7 @@ class config(object):
     config_file = '.\setup.cfg'
     exec_mode = 'local'
     browser = [{'browserName': 'ie'}]
+    device = None
     build_tag = None  # get this somewhere
     tunnel_id = None
     selenium_port = None
@@ -28,34 +30,11 @@ class config(object):
     if exec_mode == 'local':
         browser = config.get('local', 'browser')
         browser = [{'browserName': browser}]
+        device = config.get('local', 'device')
 
     elif exec_mode == 'remote':
-        browser = [
-            {
-                'platform': 'Windows 10',
-                'browserName': 'chrome',
-                'version': '51.0'
-            }
-            ,
-            {
-                'platform': 'Windows 7',
-                'browserName': 'internet explorer',
-                'version': '11.0'
-            }
-            ,
-            {
-               'platform': 'Linux',
-               'browserName': 'android',
-               'version': '4.3',
-               'deviceName': 'Android Emulator',
-               'deviceOrientation': 'portrait'
-            },
-            {
-               'platform': 'OS X 10.11',
-               'browserName': 'safari',
-               'version': '9',
-            }
-        ]  # get browsers on script
+        remote = Remote()
+        browser = remote.browsers
         username = config.get(exec_mode, 'username')
         accesskey = config.get(exec_mode, 'accesskey')
         tunnel_id = config.get(exec_mode, 'tunnel_id')

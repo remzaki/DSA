@@ -58,6 +58,12 @@ class BaseTest(unittest.TestCase):
                 self.driver = webdriver.Ie('.\drivers\IEDriverServer.exe')
             elif self.browser == 'chrome':
                 self.driver = webdriver.Chrome('.\drivers\chromedriver.exe')
+            elif self.browser == 'mobile':
+                mobile_emulation = {"deviceName": config.device}
+                chrome_options = webdriver.ChromeOptions()
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                self.driver = webdriver.Chrome(executable_path='.\drivers\chromedriver.exe',
+                                               chrome_options=chrome_options)
 
             self.driver.maximize_window()
 

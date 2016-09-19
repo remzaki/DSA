@@ -7,7 +7,7 @@
 execution = local
 
 # timeout = amount time in seconds, used in overall automation methods
-timeout = 60
+timeout = 30
 
 # debug_stop = step number that you want to stop when debugging
 debug_stop = 
@@ -19,8 +19,12 @@ debug_stop =
 # values:
 #		ie = Internet Explorer
 #		chrome = Google Chrome
+#		mobile = use Google Chrome's mobile port view
 # let us know if there is any additional browser to add
 browser = chrome
+
+# device name; only works if browser = mobile
+device = 
 
 
 # Setup for execution = remote
