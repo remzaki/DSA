@@ -11,26 +11,38 @@ class HTMLClass(object):
         This method creates a table entry with a list of browser, exec time, fail/pass status, test name, and then
         returns the tableresult.
         """
-        if browser == "":
+        if passed == "":
 	        tableresult = """            <tr>
-	                    <td id='td3'><strong>&nbsp;%s</strong></td>
-	                    <td id='td3'>&nbsp;%s</td>
-	                    <td id='td3'>&nbsp;%s</td>
-	                    <td id='td3'>&nbsp;%s</td>
-	                    <td id='td3'>&nbsp;%s</td>
-	                    <td id='td3'>&nbsp;%s</td>
-	                    <td id='td3'>&nbsp;%s</td>
-	                </tr>""" %(name, passed, failed, duration, OS, browser, error)
+                        <td id='td3'><strong>&nbsp;%s</strong></td>
+                        <td id='td3'>&nbsp;%s</td>
+                        <td id='td3'>&nbsp;%s</td>
+                        <td id='td3'>&nbsp;%s</td>
+                        <td id='td3'>&nbsp;%s</td>
+                        <td id='td3'>&nbsp;%s</td>
+                        <td id='td3'>&nbsp;%s</td>
+                    </tr>""" %(name, passed, failed, duration, OS, browser, error)
+
+        elif passed == "1":
+            tableresult = """            <tr>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                    </tr>""" % (name, passed, failed, duration, OS, browser, error)
+
         else:
 			tableresult = """            <tr>
-	                    <td id='td2'>&nbsp;%s</td>
-	                    <td id='td2'>&nbsp;%s</td>
-	                    <td id='td2'>&nbsp;%s</td>
-	                    <td id='td2'>&nbsp;%s</td>
-	                    <td id='td2'>&nbsp;%s</td>
-	                    <td id='td2'>&nbsp;%s</td>
-	                    <td id='td2'><a href=%s>screenshot</a></td>
-	                </tr>""" %(name, passed, failed, duration, OS, browser, error)
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'>&nbsp;%s</td>
+                        <td id='td2'><a href=%s>screenshot</a></td>
+                    </tr>""" %(name, passed, failed, duration, OS, browser, error)
         return tableresult
 
     def process_xml(self, XMLFile, outputdir):
