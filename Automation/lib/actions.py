@@ -79,8 +79,8 @@ class Actions(object):
 
         # access the URL
         driver.get(url)
-        driver.implicitly_wait(config.timeout)
-        actual_title = obj.driver.title
+        # driver.implicitly_wait(config.timeout)
+        # actual_title = obj.driver.title
 
         # try:
         #     actual_title = obj.driver.title
@@ -90,10 +90,17 @@ class Actions(object):
         # except TimeoutException:
         #     self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, actual_title))
 
-        if exp_title != actual_title:
-            self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, actual_title))
-            obj.assertEqual(exp_title, actual_title,
-                            'Expected Page Title is "%s" but current Title is "%s"' % (exp_title, actual_title))
+        # if exp_title != actual_title:
+        #     self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, actual_title))
+        #     obj.assertEqual(exp_title, actual_title,
+        #                     'Expected Page Title is "%s" but current Title is "%s"' % (exp_title, actual_title))
+
+        try:
+            self.w8.until(lambda driver: obj.driver.title.startswith(exp_title))
+        except TimeoutException:
+            self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, obj.driver.title))
+            obj.assertEqual(exp_title, obj.driver.title,
+                            'Expected Page Title is "%s" but current Title is "%s"' % (exp_title, obj.driver.title))
 
     def type(self, step, obj, l=None):
         pass
