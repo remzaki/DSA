@@ -26,6 +26,17 @@ browser = chrome
 # device name; only works if browser = mobile
 device = 
 
+[email]
+# this section contains values/variables to be used for checkEmail lib and accessing gmail api
+mail =
+m_version =
+email_add =
+SCOPES =
+storage_file =
+client_secret =
+q_from =
+q_sub_ssq =
+q_sub_cq =
 
 # Setup for execution = remote
 [remote]
