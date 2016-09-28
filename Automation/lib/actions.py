@@ -1,3 +1,4 @@
+from __future__ import print_function
 import logging
 from lib.config import config
 from lib.checkEmail import CheckEmail
@@ -5,10 +6,12 @@ from elements import Elements
 from selenium.common.exceptions import TimeoutException, \
     StaleElementReferenceException, \
     NoSuchElementException, \
-    WebDriverException
+    WebDriverException, \
+    UnexpectedAlertPresentException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
 from selenium.webdriver.common.by import By
+import time
 from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 import os
@@ -80,7 +83,10 @@ class Actions(object):
         exp_title = l[1]
 
         # access the URL
+        # try:
         driver.get(url)
+        # except UnexpectedAlertPresentException:
+        #     driver.switch_to.alert.accept()
         # driver.implicitly_wait(config.timeout)
         # actual_title = obj.driver.title
 
@@ -125,10 +131,6 @@ class Actions(object):
         if got_data:
             self.log.debug('Got element "%s" = %s', edict, got_data)
             element = got_data.strip()
-
-            # t = config.timeout
-            # self.log.info('Implicit wait of %s seconds', t)
-            # driver.implicitly_wait(t)
 
             self.log.info('Get WebElement %s', element)
             e = self.getset_elem(driver, element)
@@ -230,6 +232,25 @@ class Actions(object):
         self.logger('%s-%s.Actions.pause.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
+        msg = l[0]
+        timer = int(l[1])
+
+        mins, secs = divmod(int(l[1]), 60)
+        time_format = '{:02d}:{:02d}'.format(mins, secs)
+        self.log.info("%s %s", msg, time_format)
+
+        try:
+            while timer:
+                mins, secs = divmod(timer, 60)
+                time_format = '{:02d}:{:02d}'.format(mins, secs)
+                print("%s - %s" % (msg, time_format), end='\r')
+                time.sleep(1)
+                timer -= 1
+        except KeyboardInterrupt:
+            self.log.debug("Pause timer interruption")
+
+        self.log.info("Pause timer finish")
+
     def verify(self, step, obj, l=None):
         self.logger('%s-%s.Actions.verify.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
@@ -282,7 +303,7 @@ class Actions(object):
                 act_value = ''
                 try:
                     presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
-                    WebDriverWait(driver, 10).until(presence_of)
+                    e = self.w8.until(presence_of)
                     act_value = e.text
                 except TimeoutException, exc:
                     self.log.warning('TimeoutException: %s', exc)
@@ -318,7 +339,6 @@ class Actions(object):
         if got_data:
             self.log.debug('Element %s found with value %s', edict, got_data)
             element = got_data.strip()
-            e = self.getset_elem(driver, element)
             e_enabled = None
             try:
                 self.log.debug('Wait until the Element is Clickable')
@@ -338,9 +358,8 @@ class Actions(object):
                 try:
                     location = btn.location
                     self.log.debug('"%s" location: %s', element, location)
-                    js_script = "window.scrollTo(%i, %i)" % (location['x'], location['y'] - 300)
-                    self.log.debug('JS Script: %s', js_script)
-                    driver.execute_script(js_script)
+                    driver.execute_script("return arguments[0].scrollIntoView();", btn)
+                    driver.execute_script("window.scrollBy(0, -200);")
 
                     self.log.info('Performing the click on %s', edict)
                     btn.click()
@@ -529,9 +548,8 @@ class Actions(object):
                         try:
                             location = e.location
                             self.log.debug('"%s" location: %s', element, location)
-                            js_script = "window.scrollTo(%i, %i)" % (location['x'], location['y'] - 300)
-                            self.log.debug('JS Script: %s', js_script)
-                            driver.execute_script(js_script)
+                            driver.execute_script("return arguments[0].scrollIntoView();", e)
+                            driver.execute_script("window.scrollBy(0, -200);")
 
                             self.log.debug('Click Element "%s"', element)
                             e.click()
@@ -573,10 +591,8 @@ class Actions(object):
                 url = checkEmail.get_link(self.typ)
             exp_title = l[1]
             list_ = [url, exp_title]
-            step = step + .5
+            step += .5
             self.url(step, obj, list_)
-        elif check.lower() == '!email or other than email': #for future use if check action will be used other than email checking
-            print exp_value
         else:
             self.log.error('Check command "%s" is not supported', check)
             obj.assertTrue(False, 'Check command "%s" is not supported' % check)
