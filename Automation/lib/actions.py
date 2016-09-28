@@ -1,5 +1,6 @@
 import logging
 from lib.config import config
+from lib.checkEmail import CheckEmail
 from elements import Elements
 from selenium.common.exceptions import TimeoutException, \
     StaleElementReferenceException, \
@@ -26,6 +27,7 @@ class Actions(object):
         self.w8 = None
         self.asset = None
         self.driver = None
+        self.typ = None
 
     def logger(self, logger_name):
         self.log = logging.getLogger(logger_name)
@@ -103,6 +105,7 @@ class Actions(object):
                             'Expected Page Title is "%s" but current Title is "%s"' % (exp_title, obj.driver.title))
 
     def type(self, step, obj, l=None):
+        self.typ = l[0].strip()
         pass
         # self.logger('%s-%s.Actions.type.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         # self.log.debug('Parameters: ' + l[0] + " | " + l[1])
@@ -548,3 +551,32 @@ class Actions(object):
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
+
+    def check(self, step, obj, l=None):
+        """Method for accessing the sent email"""
+        self.logger('%s-%s.Actions.check.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.log.debug('Parameters: ' + l[0] + " | " + l[1])
+        checkEmail = CheckEmail()
+
+        if ':' in l[0]:
+            data = l[0].split(':')
+        else:
+            self.log.error('Method was called but with no proper Instruction on argument')
+            obj.assertTrue(False, 'Method was called but with no proper Instruction on argument')
+
+        check = data[0].strip()
+        exp_value = data[1].strip()
+
+        if check.lower() == 'email':
+            url = None
+            while not url:
+                url = checkEmail.get_link(self.typ)
+            exp_title = l[1]
+            list_ = [url, exp_title]
+            step = step + .5
+            self.url(step, obj, list_)
+        elif check.lower() == '!email or other than email': #for future use if check action will be used other than email checking
+            print exp_value
+        else:
+            self.log.error('Check command "%s" is not supported', check)
+            obj.assertTrue(False, 'Check command "%s" is not supported' % check)
