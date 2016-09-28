@@ -44,3 +44,12 @@ class config(object):
         if parallelism:
             parallel = config.get(exec_mode, 'parallel')
             parallel = '-n' + parallel
+    mail = config.get('email', 'mail')
+    m_version = config.get('email', 'm_version')
+    email_add = config.get('email', 'email_add')
+    SCOPES = config.get('email', 'SCOPES')
+    storage_file = config.get('email', 'storage_file')
+    client_secret = config.get('email', 'client_secret')
+    q_from = config.get('email', 'q_from')
+    q_sub_ssq = config.get('email', 'q_sub_ssq')
+    q_sub_cq = config.get('email', 'q_sub_cq')
