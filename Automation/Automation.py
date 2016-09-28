@@ -24,14 +24,34 @@ class TestSequenceMeta(type):
                 
                 self.assertTrue(testdatas is not None)
                 actions = Actions()
+                self.driver.implicitly_wait(config.timeout)
                 for step, d in enumerate(testdatas):
                     cmd = d[0].lower()
                     param1 = d[1].replace('"', '')
                     param2 = d[2]
+                    param3 = ''
+                    try:
+                        param3 = d[3]
+                    except IndexError:
+                        pass
                     p = [param1, param2]
                     if cmd != '':
-                        do = getattr(actions, cmd)
-                        do(step+1, self, p)
+                        on_mobile = ('ios' in str(self.desired_capabilities).lower()) or\
+                                    ('mobile' in str(self.desired_capabilities).lower()) or\
+                                    ('android' in str(self.desired_capabilities).lower())
+                        flag = True
+                        if on_mobile and param3 == 'm-':
+                            flag = False
+                            log.info('Step %i will be SKIPPED in Mobile setup', step + 1)
+                        elif on_mobile and param3 == 'm':
+                            log.info('Step %i specific for Mobile setup', step + 1)
+                        elif not on_mobile and param3 == 'm':
+                            flag = False
+                            log.info('Step %i will be SKIPPED since it is specific for Mobile setup', step + 1)
+
+                        if flag:
+                            do = getattr(actions, cmd)
+                            do(step+1, self, p)
 
                     if step+1 == config.stop_at_step:
                         # breakpoint here below when debugging
