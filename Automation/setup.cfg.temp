@@ -10,7 +10,7 @@ execution = local
 timeout = 30
 
 # debug_stop = step number that you want to stop when debugging
-debug_stop = 
+debug_stop = 0
 
 
 # Setup for execution = local
