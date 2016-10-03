@@ -499,12 +499,12 @@ class Actions(object):
             plan_list = driver.find_elements_by_css_selector(element)
             if plan_list:
                 self.log.info('Check if there is a match')
-                for plan in plan_list:
-                    score = 1
+                for plan in plan_list:  # for each plan
+                    score = 0
                     top_score = len(arr_keys) - 1
 
                     self.log.info('Check if plan "%s" matches', plan)
-                    for x in range(1, len(arr_keys)):
+                    for x in range(1, len(arr_keys)):   # for each details in the plan
                         edict = self.trim_name(arr_keys[x])
                         if edict:
                             got_data = self.elements.get_data(edict)
@@ -517,6 +517,8 @@ class Actions(object):
                             e = self.getset_elem(plan, element)
                             try:
                                 txt = e.text
+                                if txt == '':
+                                    txt = e.get_attribute('value')
                             except Exception, exc:
                                 self.log.error('Exception: %s', exc)
                                 obj.assertTrue(False, 'Exception: %s' % exc)
@@ -538,7 +540,7 @@ class Actions(object):
 
                             if txt == val:
                                 score += 1
-                                self.log.debug('Point score %d/%d', score, top_score)
+                                self.log.debug('Point score %d/%d from %s', score, top_score, txt)
                         else:
                             self.log.error('Element Dictionary "%s" is not found', edict)
                             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
