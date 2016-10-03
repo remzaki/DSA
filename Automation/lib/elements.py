@@ -182,7 +182,7 @@ class Elements:
         "ghi_applicant_dob_fld": ["#primary_birthday"],
         "ghi_coverage_start_date_fld": ["#coverageStartDate"],
         "ghi_view_plans_bttn": [".btn-primary"],
-        "ghi_plan_counter": [".mc-plan-list-results-count h3"],
+        "ghi_plan_count": [".mc-plan-list-results-count h3"],
         "ghi_plan": ["div[data-ng-repeat='plan in vm.pagedPlans']"],
         "ghi_plan_name": [".mc-plan-list-item-identity h3"],
         "ghi_deductible": [".mc-plan-list-item-details dl dd:nth-child(2)"],
