@@ -34,7 +34,7 @@
 	}
 
     #td1{
-        text-align: left;
+        text-align: center;
         border-width: 1px;
         border-style: solid;
     }
@@ -65,23 +65,23 @@
     <table id='tbl1'>
         <tbody>
             <tr>
-                <td id='td0'><strong>&nbsp;Total tests</strong></td>
-                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@totaltc@@</td>
+                <td id='td0'><strong>Total tests</strong></td>
+                <td id='td1'>@@totaltc@@</td>
             </tr>
 
             <tr>
-                <td id='td0'><strong>&nbsp;Total pass</strong></td>
-                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@pass@@</td>
+                <td id='td0'><strong>Total pass</strong></td>
+                <td id='td1'>@@pass@@</td>
             </tr>
 
             <tr>
-                <td id='td0'><strong>&nbsp;Total fail</strong></td>
-                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@fail@@</td>
+                <td id='td0'><strong>Total fail</strong></td>
+                <td id='td1'>@@fail@@</td>
             </tr>
 
             <tr>
-                <td id='td0'><strong>&nbsp;Total duration</strong></td>
-                <td id='td1'>&nbsp; &nbsp; &nbsp; &nbsp; @@duration@@</td>
+                <td id='td0'><strong>Total duration</strong></td>
+                <td id='td1'>@@duration@@</td>
             </tr>
 
         </tbody>
