@@ -501,7 +501,7 @@ class Actions(object):
                 except Exception, exc:
                     self.log.error('Exception: %s', exc)
                     obj.assertTrue(False, 'Exception: %s' % exc)
-            scroll_x = int(plan_found) / 10
+            scroll_x = float(plan_found) / 10
             if scroll_x > 1:
                 """Scrolls down the plan page."""
                 x = 0
