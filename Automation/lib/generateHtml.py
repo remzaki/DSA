@@ -99,6 +99,7 @@ class HTMLClass(object):
             total_fail = testsumm.find('failed').text
             total_time = testsumm.find('totaltime').text
         # endfor
+        total_time = self.sec2time(float(total_time))
 
         HTMLData = HTMLData.replace("@@totaltc@@", total_tests)
         HTMLData = HTMLData.replace("@@pass@@", total_pass)
@@ -175,13 +176,29 @@ class HTMLClass(object):
         summaryNode.appendChild(doc.createElement("totaltest")).appendChild(doc.createTextNode(str(total_pass + total_fail)))
         summaryNode.appendChild(doc.createElement("passed")).appendChild(doc.createTextNode(str(total_pass)))
         summaryNode.appendChild(doc.createElement("failed")).appendChild(doc.createTextNode(str(total_fail)))
-        summaryNode.appendChild(doc.createElement("totaltime")).appendChild(doc.createTextNode(str(total_time)+"s"))
+        # summaryNode.appendChild(doc.createElement("totaltime")).appendChild(doc.createTextNode(str(total_time)+"s"))
+        summaryNode.appendChild(doc.createElement("totaltime")).appendChild(doc.createTextNode(str(total_time)))
 
         #This is to fix the spacing issue of prettyxml
         result    = doc.toprettyxml(indent='  ')
         text_re   = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
         clean_xml = text_re.sub('>\g<1></', result)
         return clean_xml
+
+    def sec2time(self, sec, n_msec=3):
+        ''' Convert seconds to 'D days, HH:MM:SS.FFF' '''
+        if hasattr(sec, '__len__'):
+            return [self.sec2time(s) for s in sec]
+        m, s = divmod(sec, 60)
+        h, m = divmod(m, 60)
+        d, h = divmod(h, 24)
+        if n_msec > 0:
+            pattern = '%%02dh:%%02dm:%%0%d.%dfs' % (n_msec + 3, n_msec)
+        else:
+            pattern = r'%02dh:%02dm:%02ds'
+        if d == 0:
+            return pattern % (h, m, s)
+        return ('%d days, ' + pattern) % (d, h, m, s)
 
     def create_html(self, outputdir):
         """This method will call the merge_xmls and process_xml methods to create an html file."""
