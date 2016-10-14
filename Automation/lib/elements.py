@@ -20,6 +20,7 @@ class Elements:
         "view_plans_bttn": ["#hylViewPlans"],
         "quote_plan_page": ["#frmPlanList"],
         "plan": [".plans-list-result"],
+        "uho_plan_name": [".planName span"],
         "term_life_ben_amt": [".quotePlanMaxLifetimeBenefit div div"],
         "policy_term": [".quotePlanMaxBenefitPeriod div"],
         "add_to_cart": ["input.applyBtn[value='Add to Cart']"],
@@ -176,7 +177,7 @@ class Elements:
         "thank_you_page": [".thank-maintitle"],
 
         ################################################################################################
-        # GetHealthInsurance portion
+        # GetHealthInsurance elements
         ################################################################################################
         "ghi_zip_code_fld": ["#zipCode"],
         "ghi_loading": ["div#ngplus-overlay-content.ngplus-overlay-content"],
@@ -184,7 +185,9 @@ class Elements:
         "ghi_applicant_dob_fld": ["#primary_birthday"],
         "ghi_coverage_start_date_fld": ["#coverageStartDate"],
         "ghi_view_plans_bttn": [".btn-primary"],
-        "ghi_plan": ["[data-ng-repeat='plan in vm.pagedPlans']"],
+        "ghi_plan_count": [".mc-plan-list-results-count h3"],
+        "ghi_plan": ["div[data-ng-repeat='plan in vm.pagedPlans']"],
+        "ghi_plan_name": [".mc-plan-list-item-identity h3"],
         "ghi_deductible": [".mc-plan-list-item-details dl dd:nth-child(2)"],
         "ghi_coinsurance": [".mc-plan-list-item-details dl dd:nth-child(4)"],
         "ghi_oop": [".mc-plan-list-item-details dl dd:nth-child(6)"],
@@ -226,10 +229,10 @@ class Elements:
         "ghi_billing_zipcode_fld": ["input[name=billingAddressZipcode]"],
         "ghi_review_submit_page": ["form[name=signatureForm]"],
         "ghi_pdf_box": [".pdfobject-container"],
-        # "ghi_esignature_chckbox": ["label[data-code='MultiCarrier.Signature.AcknowledgeConfirmation.Message']"],
-        "ghi_esignature_chckbox": ["#hasAcknowledged"],
-        # "ghi_sign_bttn": ["button[data-ng-click='vm.clickToSignPrimary()']"],
-        "ghi_sign_bttn": ["#primarySigned"],
+        "ghi_esignature_chckbox": ["label[data-code='MultiCarrier.Signature.AcknowledgeConfirmation.Message']"],
+        # "ghi_esignature_chckbox": ["#hasAcknowledged"],
+        "ghi_sign_bttn": ["button[data-ng-click='vm.clickToSignPrimary()']"],
+        # "ghi_sign_bttn": ["#primarySigned"],
         "ghi_submit_bttn": ["button[data-ng-click='vm.submitAttempt()']"],
         "ghi_thank_you_page": ["div[data-code='MultiCarrier.ThankYou.Disclaimer.Top']"]
     }

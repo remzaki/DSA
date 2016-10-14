@@ -4,6 +4,9 @@ from lib.base import *
 from lib.actions import Actions
 from lib.log import Logger
 from lib.parser import Parser
+import os
+import shutil
+import datetime
 
 logger = Logger()
 data = Parser().get_datadict()
@@ -76,6 +79,23 @@ class TestSequenceMeta(type):
 
 @on_platforms(platforms)
 class TestClass(BaseTest):
+    cwd = os.getcwd()
+    tr_folder = "report"
+    tr_dir = os.path.join(cwd, tr_folder)
+    if os.path.exists(tr_dir):
+        folder_name = datetime.datetime.now().strftime("%Y-%m-%d_%H")
+        folder = os.path.join(tr_folder, folder_name)
+        files = os.listdir(tr_dir)
+        for f in files:
+            if f.endswith(".xml") or f.endswith(".html"):
+                if not os.path.exists(folder):
+                    os.makedirs(folder)
+                file_ = os.path.join(tr_dir, f)
+                if os.path.exists(os.path.join(folder, f)):
+                    os.remove(os.path.join(folder, f))
+                shutil.move(file_, folder)
+    else:
+        os.makedirs(tr_dir)
 
     @classmethod
     def setup_class(cls):
