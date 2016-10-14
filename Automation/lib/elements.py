@@ -1,4 +1,7 @@
 # /automation/lib/
+import httplib
+import json
+from StringIO import StringIO
 
 class Elements:
     """
@@ -239,6 +242,49 @@ class Elements:
             elements = False
         finally:
             return elements
+
+    def get_data_api(self, name):
+        request_site = httplib.HTTPConnection("localhost", 62526)
+        request_site.request('GET', '/api/elements?name=%s&min=true' % name,
+                             headers={"Accept": "application/json"})
+
+        result = request_site.getresponse()
+
+        io = StringIO(result.read())
+        try:
+            data = json.load(io)
+            data = data['Value']
+        except Exception, e:
+            # print e
+            data = False
+        print("From API with love: %s" % data)
+        return data
+
+    def batch(self):
+        req = httplib.HTTPConnection("localhost", 62526)
+
+        for d in self.dict.items():
+            print "%s === %s" % (d[0], d[1][0])
+            print "Creating Request body..."
+            body = json.dumps({
+                "Name": d[0],
+                "Value": d[1][0],
+                "ShortDesc": ""
+            })
+            print body
+
+            print "Sending the API Request..."
+            req.request('POST', '/api/elements', body, headers={"Content-Type": "application/json"})
+
+            print "Acquiring Response..."
+            result = req.getresponse()
+            print "Response: %s" % result.read()
+
+            print "_" * 100
+
+# c = Elements()
+# c.get_data("credit_card_page")    # get specific element
+# c.batch()     # insert elements from var dict
 
 # if __name__ == '__main__':
 #    print "main"
