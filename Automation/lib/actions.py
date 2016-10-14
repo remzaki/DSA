@@ -485,6 +485,29 @@ class Actions(object):
         arr_values = l[0].split('|')
         arr_keys = l[1].split('|')
 
+        if "ghi_plan" in arr_keys[0]:
+            """Get the number of GetHealthInsurance plans found."""
+            plan_numbers = "ghi_plan_count"
+            got_data = self.elements.get_data(plan_numbers)
+            element = got_data.strip()
+            plan_found = None
+            while plan_found is None:
+                try:
+                    presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                    e = self.w8.until(presence_of)
+                    plan_found = e.text
+                except TimeoutException, exc:
+                    self.log.warning('TimeoutException: %s', exc)
+                except Exception, exc:
+                    self.log.error('Exception: %s', exc)
+                    obj.assertTrue(False, 'Exception: %s' % exc)
+            scroll_x = float(plan_found) / 10
+            if scroll_x > 1:
+                """Scrolls down the plan page."""
+                x = 0
+                while x <= scroll_x:
+                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                    x += 1
         edict = self.trim_name(arr_keys[0])
         if edict:
             got_data = self.elements.get_data(edict)
