@@ -42,6 +42,8 @@ class TestSequenceMeta(type):
                         on_mobile = ('ios' in str(self.desired_capabilities).lower()) or\
                                     ('mobile' in str(self.desired_capabilities).lower()) or\
                                     ('android' in str(self.desired_capabilities).lower())
+                        if '#' in cmd:
+                            continue
                         flag = True
                         if on_mobile and param3 == 'm-':
                             flag = False
