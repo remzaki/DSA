@@ -208,6 +208,7 @@ class Elements:
         "ghi_eligibility_congrats_txt": ["div[data-code='MultiCarrier.Eligibility.Eligible.Message']"],
         "ghi_continue_bttn": ["input[value=Continue]"],
         "ghi_applicant_info_page": ["form[name=applicationForm]"],
+        "uho_page_title_lbl": ["span#ctl00_lblPageTitle"],
         "ghi_firstname_fld": ["#primary_firstName"],
         "ghi_lastname_fld": ["#primary_lastName"],
         "ghi_contact_info_address_fld": ["#contactInfo_address"],
