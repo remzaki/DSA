@@ -561,9 +561,13 @@ class Actions(object):
                                     # ignore Exceptions
                                     self.log.warning('Int Format Exception: %s', exc)
 
-                            if txt == val:
-                                score += 1
-                                self.log.debug('Point score %d/%d from %s', score, top_score, txt)
+                            if txt is not None:
+                                if val == txt:
+                                    score += 1
+                                    self.log.debug('Point score %d/%d from %s', score, top_score, txt)
+                                elif val in txt:
+                                    score += 1
+                                    self.log.debug('Point score %d/%d from~ %s', score, top_score, txt)
                         else:
                             self.log.error('Element Dictionary "%s" is not found', edict)
                             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
