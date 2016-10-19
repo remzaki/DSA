@@ -120,7 +120,7 @@ class CheckEmail(object):
             body = mail.get_payload()
         return body
 
-    def get_link(self, typ):
+    def get_auth(self):
         email_add = config.email_add
         SCOPES = config.SCOPES
         store = file.Storage(config.storage_file)
@@ -129,14 +129,16 @@ class CheckEmail(object):
             flow = client.flow_from_clientsecrets(config.client_secret, SCOPES)
             creds = tools.run_flow(flow, store)
         service = discovery.build(config.mail, config.m_version, http=creds.authorize(Http()))
+        return email_add, service
 
+    def get_email(self, typ, email_file):
+        email_add, service = self.get_auth()
         if typ.lower() == "customized quote":
             q = config.q_sub_cq
-            regex = ['=3D"(.*?)\=\r', '(.*?)\=\r', '(.*?)\"\>here']
-
         elif typ.lower() == "self-service quote":
             q = config.q_sub_ssq
-            regex = ['ef=3D"(.*?)\=\r', '(.*?)\"\>start']
+        elif typ.lower() == "baa":
+            q = config.q_sub_baa
 
         messages = None
         while not messages:
@@ -147,52 +149,76 @@ class CheckEmail(object):
                 if key == 'id':
                     id_.append(list[key])
 
-        links = []
-        stop = len(regex)
         for id in id_:  # Gets the MIMEMessage for each message id
             getmimemessage = self.GetMimeMessage(service, email_add, id)
-            file_ = "body.txt"
+            body_txt = "body.txt"
             body = self.get_mail_body(getmimemessage)
             # Open new data file
-            f = open(file_, "w")
+            f = open(body_txt, "w")
             f.write(body)  # str() converts to string
             f.close()
-            f = open(file_, "r")
+            file_txt = open(body_txt, 'r')
+            file_html = open(email_file, 'w')
             strlist = []
+            for f in file_txt:
+                if f == '\n':
+                    continue
+                elif '=\r\n' in f:
+                    f = f.replace('=\r\n', '')
+                    strlist.append(f)
+                else:
+                    if '\r' in f:
+                        f = f.replace('\r', '')
+                    line = ''.join(strlist)
+                    line = line + f
+                    if "=3D" in line:
+                        line = line.replace("=3D", "=")
+                    if "&amp;" in line:
+                        line = line.replace("&amp;", "&")
+                    file_html.write(line)
+                    strlist = []
+            file_txt.close()
+            file_html.close()
+
+            file_html = open(email_file, 'r')
+            regex = ['<title>(.*?)</title>'] #Temporarily assigned as list
             index = 0
-            for line in f:
+            stop = len(regex)
+            exp_title = []
+            for line in file_html:
                 matches = re.search(regex[index], line)
                 if matches:
-                    if ">here" in line:  # exclusively added for customized quote testcase
-                        if not index >= stop - 1:
-                            index += 1
-                        matches = re.search(regex[index], line)
-                        strlist.append(matches.group(1))
-                    else:
-                        strlist.append(matches.group(1))
+                    exp_title.append(matches.group(1))
                     index += 1
                 if index >= stop:
                     break
-            f.close()
-            link = ''.join(strlist)
-            if "=3D" in link:
-                link = link.replace("=3D", "=")
-            if "&amp;" in link:
-                link = link.replace("&amp;", "&")
-            print(link)
-            links.append(link)
-            os.remove(file_)
+
+            print (exp_title)
+            os.remove(body_txt)
             i_d = id
             break
 
-        if links:
+        if exp_title:
             # Message move to trash
             self.TrashMessage(service, email_add, i_d)
-            link = links[0]
+            exp_title = exp_title[0]
+            url = os.path.join(os.getcwd(), email_file)
         else:
-            link = None
-        return link
+            exp_title = None
+        return url, exp_title
 
-        # if __name__ == '__main__':
-        #     mail = CheckEmail()
-        #     mail.get_link("Customized Quote")
+    def clear_emails(self):
+        email_add, service = self.get_auth()
+        q = 'label:UNREAD'
+        messages = self.ListMessagesMatchingQuery(service, email_add, query=q)
+        id_ = []
+        for list in messages:
+            for key in list:
+                if key == 'id':
+                    id_.append(list[key])
+        for id in id_:  #Deletes all unread messages
+            self.TrashMessage(service, email_add, id)
+
+# if __name__ == '__main__':
+#     mail = CheckEmail()
+#     mail.get_link("Customized Quote")
