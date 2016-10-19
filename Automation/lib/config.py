@@ -53,3 +53,4 @@ class config(object):
     q_from = config.get('email', 'q_from')
     q_sub_ssq = config.get('email', 'q_sub_ssq')
     q_sub_cq = config.get('email', 'q_sub_cq')
+    q_sub_baa = config.get('email', 'q_sub_baa')
