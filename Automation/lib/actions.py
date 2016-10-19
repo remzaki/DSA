@@ -16,6 +16,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium import webdriver
 import os
 import locale
+import shutil
 
 
 class Actions(object):
@@ -608,16 +609,33 @@ class Actions(object):
             obj.assertTrue(False, 'Method was called but with no proper Instruction on argument')
 
         check = data[0].strip()
-        exp_value = data[1].strip()
+        #exp_value = data[1].strip()
+        email_file = obj._testMethodName + "_" + obj.desired_capabilities['browserName'] + ".html"
 
         if check.lower() == 'email':
-            url = None
-            while not url:
-                url = checkEmail.get_link(self.typ)
-            exp_title = l[1]
-            list_ = [url, exp_title]
-            step += .5
-            self.url(step, obj, list_)
+            exp_title = None
+            while not exp_title:
+                url, exp_title = checkEmail.get_email(self.typ, email_file)
+
+            #Open email html file
+            l = [url, exp_title]
+            step += .1
+            self.url(step, obj, l)
+
+            #Click link in the email content
+            l = ['Link', 'body a']
+            step += .1
+            self.click(step, obj, l)
+
+            #Move email html file to emails folder
+            email_folder = "emails"
+            e_dir = os.path.join(os.getcwd(), email_folder)
+            if not os.path.exists(e_dir):
+                os.makedirs(e_dir)
+            if os.path.exists(os.path.join(e_dir, email_file)):
+                os.remove(os.path.join(e_dir, email_file))
+            shutil.move(url, e_dir)
+
         else:
             self.log.error('Check command "%s" is not supported', check)
             obj.assertTrue(False, 'Check command "%s" is not supported' % check)
