@@ -62,6 +62,8 @@ class TestSequenceMeta(type):
                         # breakpoint here below when debugging
                         pass
 
+                    time.sleep(1)
+
             return gen
 
         for s, tests in data.items():
