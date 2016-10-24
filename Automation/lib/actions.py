@@ -622,20 +622,11 @@ class Actions(object):
             step += .1
             self.url(step, obj, l)
 
-            #Click link in the email content
-            l = ['Link', 'body a']
-            step += .1
-            self.click(step, obj, l)
-
-            #Move email html file to emails folder
-            email_folder = "emails"
-            e_dir = os.path.join(os.getcwd(), email_folder)
-            if not os.path.exists(e_dir):
-                os.makedirs(e_dir)
-            if os.path.exists(os.path.join(e_dir, email_file)):
-                os.remove(os.path.join(e_dir, email_file))
-            shutil.move(url, e_dir)
-
+            if config.exec_mode == 'local':
+                # Click link in the email content
+                l = ['Link', 'body a']
+                step += .1
+                self.click(step, obj, l)
         else:
             self.log.error('Check command "%s" is not supported', check)
             obj.assertTrue(False, 'Check command "%s" is not supported' % check)
