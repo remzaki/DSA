@@ -106,6 +106,12 @@ class Actions(object):
 
         try:
             self.w8.until(lambda driver: obj.driver.title.startswith(exp_title))
+
+            self.log.info('Clear all cookies!')
+            driver.delete_all_cookies()
+
+            self.log.info('Refresh page to request new cookies')
+            driver.refresh()
         except TimeoutException:
             self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, obj.driver.title))
             obj.assertEqual(exp_title, obj.driver.title,
@@ -434,12 +440,14 @@ class Actions(object):
                     radio_btns = driver.find_elements_by_css_selector(element)
                     if radio_btns:
                         for i, radio_btn in enumerate(radio_btns):
-                            e_id = radio_btn.get_attribute('id')
-                            # self.log.debug('Radio button id: %s', e_id)
-
+                            e_id = None
                             try:
+                                e_id = radio_btn.get_attribute('id')
+                                # self.log.debug('Radio button id: %s', e_id)
                                 # e_enabled = ec.element_to_be_clickable((By.ID, e_id))
                                 e_enabled = radio_btn.is_displayed()
+                            except Exception, e:
+                                self.log.error(e)
                             finally:
                                 self.log.debug('Visibility of Element "%s" is %s', e_id, e_enabled)
 
@@ -634,3 +642,27 @@ class Actions(object):
         else:
             self.log.error('Check command "%s" is not supported', check)
             obj.assertTrue(False, 'Check command "%s" is not supported' % check)
+
+    def key(self, step, obj, l=None):
+        """Method for sending key strokes"""
+        self.logger('%s-%s.Actions.key.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.log.debug('Parameters: ' + l[0] + " | " + l[1])
+
+        arg = l[0].upper()
+        try:
+            key = getattr(Keys, arg)
+        except AttributeError:
+            self.log.error('Key %s is invalid', arg)
+            obj.assertTrue(False, 'Key %s is invalid' % arg)
+
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            edict = got_data = l[1]
+
+        if got_data:
+            element = got_data.strip()
+            presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+            e = self.w8.until(presence_of)
+            e.send_keys(key)
