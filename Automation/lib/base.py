@@ -12,10 +12,12 @@ import logging
 from lib.platformCount import *
 from lib.generateXml import *
 from lib.generateHtml import *
+from lib.checkEmail import CheckEmail
 
 logger = Logger()
 platforms = config.browser
 pc = PlatformCount()
+checkEmail = CheckEmail()
 
 
 def on_platforms(platforms):
@@ -115,6 +117,7 @@ class BaseTest(unittest.TestCase):
 
         self.driver.quit()
         self.xresult.testDict = value
+        checkEmail.clear_emails()
 
     @classmethod
     def setup_class(cls):
