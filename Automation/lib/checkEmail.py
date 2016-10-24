@@ -10,6 +10,7 @@ import base64
 import email
 import re
 import os
+import shutil
 
 
 class CheckEmail(object):
@@ -181,30 +182,43 @@ class CheckEmail(object):
             file_html.close()
 
             file_html = open(email_file, 'r')
-            regex = ['<title>(.*?)</title>'] #Temporarily assigned as list
+            regex = ['<title>(.*?)</title>', 'href=\"(.*?)\">']
             index = 0
             stop = len(regex)
-            exp_title = []
+            list_ = []
             for line in file_html:
                 matches = re.search(regex[index], line)
                 if matches:
-                    exp_title.append(matches.group(1))
+                    list_.append(matches.group(1))
                     index += 1
                 if index >= stop:
                     break
-
-            print (exp_title)
             os.remove(body_txt)
             i_d = id
+            file_html.close()
             break
 
-        if exp_title:
+        if list_:
             # Message move to trash
             self.TrashMessage(service, email_add, i_d)
-            exp_title = exp_title[0]
-            url = os.path.join(os.getcwd(), email_file)
+            email_folder = "emails"
+            email_dir = os.path.join(os.getcwd(), email_folder)
+            if not os.path.exists(email_dir):
+                os.makedirs(email_dir)
+            e_file = os.path.join(os.getcwd(), email_file)
+            if os.path.exists(os.path.join(email_dir, email_file)):
+                os.remove(os.path.join(email_dir, email_file))
+            shutil.move(e_file, email_dir)
+
+            if config.exec_mode == 'local':
+                exp_title = list_[0]
+                url = os.path.join(email_dir, email_file)
+            else:
+                url = list_[1]
+                exp_title = 'UHOne'
         else:
             exp_title = None
+        print ('URL = ', url, 'Title = ', exp_title)
         return url, exp_title
 
     def clear_emails(self):
