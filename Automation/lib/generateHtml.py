@@ -14,35 +14,32 @@ class HTMLClass(object):
         if passed == "":
 	        tableresult = """            <tr>
                         <td id='td3'><strong>&nbsp;%s</strong></td>
-                        <td id='td3'>&nbsp;%s</td>
-                        <td id='td3'>&nbsp;%s</td>
-                        <td id='td3'>&nbsp;%s</td>
-                        <td id='td3'>&nbsp;%s</td>
-                        <td id='td3'>&nbsp;%s</td>
-                        <td id='td3'>&nbsp;%s</td>
-                    </tr>""" %(name, passed, failed, duration, OS, browser, error)
+                        <td id='td3'>%s</td>
+                        <td id='td3'>%s</td>
+                        <td id='td3'>%s</td>
+                        <td id='td3'>%s</td>
+                        <td id='td3'>%s</td>
+                    </tr>""" % (name, failed, duration, OS, browser, error)
 
         elif passed == "1":
             tableresult = """            <tr>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                    </tr>""" % (name, passed, failed, duration, OS, browser, error)
+                        <td id='td2'>%s</td>
+                        <td id='td2'><span style="color:green">Pass</span></td>
+                        <td id='td2'>%s</td>
+                        <td id='td2'>%s</td>
+                        <td id='td2'>%s</td>
+                        <td id='td2'>%s</td>
+                    </tr>""" % (name, duration, OS, browser, error)
 
         else:
 			tableresult = """            <tr>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'>&nbsp;%s</td>
-                        <td id='td2'><a href=%s>screenshot</a></td>
-                    </tr>""" %(name, passed, failed, duration, OS, browser, error)
+                        <td id='td2'>%s</td>
+                        <td id='td2'><span style="color:red">Fail</span></td>
+                        <td id='td2'>%s</td>
+                        <td id='td2'>%s</td>
+                        <td id='td2'>%s</td>
+                        <td id='td2'><a href=%s>View</a></td>
+                    </tr>""" % (name, duration, OS, browser, error)
         return tableresult
 
     def process_xml(self, XMLFile, outputdir):
@@ -185,7 +182,7 @@ class HTMLClass(object):
         clean_xml = text_re.sub('>\g<1></', result)
         return clean_xml
 
-    def sec2time(self, sec, n_msec=3):
+    def sec2time(self, sec, n_msec=0):
         ''' Convert seconds to 'D days, HH:MM:SS.FFF' '''
         if hasattr(sec, '__len__'):
             return [self.sec2time(s) for s in sec]
@@ -193,9 +190,9 @@ class HTMLClass(object):
         h, m = divmod(m, 60)
         d, h = divmod(h, 24)
         if n_msec > 0:
-            pattern = '%%02dh:%%02dm:%%0%d.%dfs' % (n_msec + 3, n_msec)
+            pattern = '%%02d:%%02d:%%0%d.%df' % (n_msec + 3, n_msec)
         else:
-            pattern = r'%02dh:%02dm:%02ds'
+            pattern = r'%02d:%02d:%02d'
         if d == 0:
             return pattern % (h, m, s)
         return ('%d days, ' + pattern) % (d, h, m, s)
