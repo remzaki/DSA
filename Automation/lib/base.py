@@ -112,6 +112,8 @@ class BaseTest(unittest.TestCase):
             self.test_attrib = sauce_client.jobs.get_job_attributes(self.driver.session_id)
             browser = self.test_attrib["browser"]
             OS = self.test_attrib["os"]
+            if not status:
+                screenshot_error = self.test_attrib["video_url"]
             value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error)
         self.driver.implicitly_wait(5)
 
