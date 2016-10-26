@@ -113,7 +113,8 @@ class BaseTest(unittest.TestCase):
             browser = self.test_attrib["browser"]
             OS = self.test_attrib["os"]
             if not status:
-                screenshot_error = self.test_attrib["video_url"]
+                sauce_labs_path = 'https://saucelabs.com/jobs/'
+                screenshot_error = sauce_labs_path + self.test_attrib["id"]
             value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error)
         self.driver.implicitly_wait(5)
 
