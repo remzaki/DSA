@@ -24,7 +24,7 @@ class HTMLClass(object):
         elif passed == "1":
             tableresult = """            <tr>
                         <td id='td2'>%s</td>
-                        <td id='td2'><span style="color:green">Pass</span></td>
+                        <td id='td2'><span style="color:#09AD30">Pass</span></td>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
@@ -34,7 +34,7 @@ class HTMLClass(object):
         else:
 			tableresult = """            <tr>
                         <td id='td2'>%s</td>
-                        <td id='td2'><span style="color:red">Fail</span></td>
+                        <td id='td2'><span style="color:#E93C3C">Fail</span></td>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
