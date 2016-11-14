@@ -7,3 +7,4 @@ pytest-xdist==1.14
 sauceclient==0.2.1
 selenium==2.53.6
 google-api-python-client==1.5.3
+PyPDF2==1.26.0
