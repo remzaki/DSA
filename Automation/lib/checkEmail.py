@@ -197,7 +197,7 @@ class CheckEmail(object):
             i_d = id
             file_html.close()
             break
-
+        uid = None
         if list_:
             # Message move to trash
             self.TrashMessage(service, email_add, i_d)
@@ -216,10 +216,14 @@ class CheckEmail(object):
             else:
                 url = list_[1]
                 exp_title = 'UHOne'
+            regex = 'ID=(.*?)$'    #Extracting Unique ID from link
+            matches = re.search(regex, list_[1])
+            if matches:
+                uid = matches.group(1)
         else:
             exp_title = None
         print ('URL = ', url, 'Title = ', exp_title)
-        return url, exp_title
+        return url, exp_title, uid
 
     def clear_emails(self):
         email_add, service = self.get_auth()
