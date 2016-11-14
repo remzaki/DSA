@@ -3,6 +3,7 @@ import logging
 from lib.config import config
 from lib.checkEmail import CheckEmail
 from elements import Elements
+from checkPdf import CheckPDF
 from selenium.common.exceptions import TimeoutException, \
     StaleElementReferenceException, \
     NoSuchElementException, \
@@ -17,6 +18,7 @@ from selenium import webdriver
 import os
 import locale
 import shutil
+from PIL import Image
 
 
 class Actions(object):
@@ -32,6 +34,8 @@ class Actions(object):
         self.asset = None
         self.driver = None
         self.typ = None
+        self.uid = None
+        self.capture_ = {}
 
     def logger(self, logger_name):
         self.log = logging.getLogger(logger_name)
@@ -308,14 +312,20 @@ class Actions(object):
 
             elif way.lower() == 'expected':
                 act_value = ''
-                try:
-                    presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
-                    e = self.w8.until(presence_of)
-                    act_value = e.text
-                except TimeoutException, exc:
-                    self.log.warning('TimeoutException: %s', exc)
-                except Exception, exc:
-                    self.log.warning('Exception: %s', exc)
+                if element in self.capture_.keys():
+                    act_value = self.capture_[element]
+                    if exp_value == 'uid':
+                        exp_value = self.uid
+                        self.log.debug('Parameters: ' + exp_value + " | " + act_value)
+                else:
+                    try:
+                        presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                        e = self.w8.until(presence_of)
+                        act_value = e.text
+                    except TimeoutException, exc:
+                        self.log.warning('TimeoutException: %s', exc)
+                    except Exception, exc:
+                        self.log.warning('Exception: %s', exc)
 
                 if act_value.strip() != exp_value:
                     self.log.error('Expected Value does not match with the Actual "%s"!="%s"', exp_value, act_value)
@@ -627,7 +637,8 @@ class Actions(object):
         if check.lower() == 'email':
             exp_title = None
             while not exp_title:
-                url, exp_title = checkEmail.get_email(self.typ, email_file)
+                url, exp_title, uid = checkEmail.get_email(self.typ, email_file)
+            self.uid = uid
 
             #Open email html file
             l = [url, exp_title]
@@ -666,3 +677,84 @@ class Actions(object):
             presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
             e = self.w8.until(presence_of)
             e.send_keys(key)
+
+    def capture(self, step, obj, l=None):
+        self.logger('%s-%s.Actions.capture.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.log.debug('Parameters: ' + l[0] + " | " + l[1])
+        pdf = CheckPDF()
+
+        driver = obj.driver
+        var = l[0].strip()
+
+        if ' ' in var:
+            var = var.replace(' ', '_')
+
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            edict = got_data = l[1]
+
+        if got_data:
+            element = got_data.strip()
+            self.log.info('Get WebElement %s', element)
+            try:
+                presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                e = self.w8.until(presence_of)
+                if var.lower() == 'screenshot':
+                    ele = self.getset_elem(driver, element)
+                    # Get entire page screenshot
+                    location = ele.location
+                    size = ele.size
+                    name = self.trim_name(l[1])
+                    if name:
+                        name = str(name)
+                    else:
+                        name = str(l[1].strip())
+                    if '/' in name:
+                        name = name.replace('/', '_')
+                    file_name = name + '.png'
+                    path_ = os.path.join(os.getcwd(), 'images')
+                    if not os.path.exists(path_):
+                        os.makedirs(path_)
+                    file_ = os.path.join(path_, file_name)
+                    self.driver.save_screenshot(file_)  # saves screenshot of entire page
+                    im = Image.open(file_)  # uses PIL library to open image in memory
+
+                    left = location['x']
+                    top = location['y']
+                    right = location['x'] + size['width']
+                    bottom = location['y'] + size['height']
+
+                    im = im.crop((left, top, right, bottom))  # defines crop points
+                    im.save(file_)  # saves new cropped image
+                else:
+                    # check if element has href tag for pdf capturing
+                    href = e.get_attribute('href')
+                    if href:
+                        pdfs = os.path.join(os.getcwd(), 'pdfs')
+                        if not os.path.exists(pdfs):
+                            os.makedirs(pdfs)
+                        # captures pdf part number from the href link
+                        if '.pdf' in href:
+                            pn, file_ = pdf.part_number(href)
+                        else:
+                            # captures part number from the pdf content
+                            # Click link in the email content
+                            l = ['Link', element]
+                            step += .1
+                            self.click(step, obj, l)
+                            time.sleep(6)
+                            pn, file_ = pdf.part_number("Application.pdf")
+                            if pn:
+                                shutil.move(file_, pdfs + '\\' + var + '.pdf')
+                        self.capture_[var] = pn
+                    else:
+                        self.capture_[var] = e.text
+            except TimeoutException, exc:
+                self.log.warning('TimeoutException: %s', exc)
+            except Exception, exc:
+                self.log.warning('Exception: %s', exc)
+        else:
+            self.log.error('Element Dictionary "%s" is not found', edict)
+            obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
