@@ -758,3 +758,25 @@ class Actions(object):
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
+
+    def release(self, step, obj, l=None):
+        self.logger('%s-%s.Actions.release.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.log.debug('Parameters: ' + l[0] + " | " + l[1])
+
+        driver = obj.driver
+        date = l[0]
+        date_link = self.elements.get_data("server_date_lnk")
+        date_fld = self.elements.get_data("server_date_fld")
+        date_btn = self.elements.get_data("server_date_bttn")
+
+        c1 = self.getset_elem(driver, date_link)
+        c1.click()
+
+        c2 = self.getset_elem(driver, date_fld)
+        c2.clear()
+        c2.send_keys(date)
+        c2.send_keys(Keys.TAB)
+        time.sleep(0.5)
+
+        c3 = self.getset_elem(driver, date_btn)
+        c3.click()
