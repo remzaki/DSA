@@ -140,6 +140,8 @@ class CheckEmail(object):
             q = config.q_sub_ssq
         elif typ.lower() == "baa":
             q = config.q_sub_baa
+        elif typ.lower() == "shopping cart quote":
+            q = config.q_sub_scq
 
         messages = None
         while not messages:

@@ -37,6 +37,7 @@ client_secret = client_secret.json
 q_from = from:sestein@unitedhealthone.com
 q_sub_ssq = subject:Thought you would be interested in these insurance options - sent on behalf of Broker Portal04
 q_sub_cq = subject:Your Quote - sent on behalf of Broker Portal04
+q_sub_scq = Your Health Plan Quote - sent on behalf of Broker Portal04
 q_sub_baa = subject:Your Application - sent on behalf of Broker Portal04
 q_ghi_hcc_sub = subject:HCC Life STM - Documents, subject:HCC Life STM order, subject:Thank you for applying through GetHealthInsurance!
 q_ghi_from = from:service@hcclifestm.com, from:No_Reply@gethealthinsurance.com
