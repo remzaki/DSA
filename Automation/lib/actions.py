@@ -78,7 +78,7 @@ class Actions(object):
         self.logger(obj._testMethodName)
         self.log.info('Description: ' + l[0])
 
-    def url(self, step, obj, l=None):
+    def url(self, step, obj, l=None, clear_cookie=True):
         """Method for accessing the webpage URL"""
         self.logger('%s-%s.Actions.url.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
@@ -111,11 +111,11 @@ class Actions(object):
         try:
             self.w8.until(lambda driver: obj.driver.title.startswith(exp_title))
 
-            self.log.info('Clear all cookies!')
-            driver.delete_all_cookies()
-
-            self.log.info('Refresh page to request new cookies')
-            driver.refresh()
+            if clear_cookie:
+                self.log.info('Clear all cookies!')
+                driver.delete_all_cookies()
+                self.log.info('Refresh page to request new cookies')
+                driver.refresh()
         except TimeoutException:
             self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, obj.driver.title))
             obj.assertEqual(exp_title, obj.driver.title,
@@ -643,7 +643,7 @@ class Actions(object):
             #Open email html file
             l = [url, exp_title]
             step += .1
-            self.url(step, obj, l)
+            self.url(step, obj, l, clear_cookie=False)
 
             if config.exec_mode == 'local':
                 # Click link in the email content
