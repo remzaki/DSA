@@ -206,11 +206,17 @@ class Actions(object):
                     self.log.error('Exception: %s', exc)
 
                 if enabled:  # if its enabled
-                    self.log.debug('Clear text then input data "%s"', data)
+                    self.log.info('Clear text')
+                    scr = 'document.querySelector("%s").select();' % element
                     try:
-                        e.clear()
+                        driver.execute_script(scr)
+                    except Exception, exc:
+                        self.log.warning(scr)
+                        self.log.warning(exc)
+
+                    self.log.info('Input data "%s"', data)
+                    try:
                         e.send_keys(data)
-                        # self.driver.send_keys(Keys.TAB)
                     except Exception, exc:
                         self.log.error('Exception: %s', exc)
                         obj.assertTrue(False, 'Exception: %s' % exc)
