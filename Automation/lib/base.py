@@ -94,14 +94,17 @@ class BaseTest(unittest.TestCase):
         tg_name = id_[1]
         tg_name = tg_name + "_" + str(pc.pfCount)
         tc_name = id_[2]
+        log = None
 
         if config.exec_mode == 'local':
             screenshot_error = None
+            logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
+                                   self.__name__ + '-' + self.browser + ".log")
             if not status:
                 self.driver.save_screenshot('.\logs\%s.png' % self.__name__)
                 screenshot_error = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__ + ".png")
             OS = platform.system() + " " + platform.release()
-            value = self.polish_result(tg_name, tc_name, status, self.browser, OS, screenshot_error)
+            value = self.polish_result(tg_name, tc_name, status, self.browser, OS, screenshot_error, logfile)
         elif config.exec_mode == 'remote':
             screenshot_error = None
             sauce_client = SauceClient(BaseTest.username, BaseTest.access_key)
@@ -112,18 +115,29 @@ class BaseTest(unittest.TestCase):
             self.test_attrib = sauce_client.jobs.get_job_attributes(self.driver.session_id)
             browser = self.test_attrib["browser"]
             OS = self.test_attrib["os"]
+            logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
+                                   self.__name__ + '-' + self.desired_capabilities['browserName'] + ".log")
             if not status:
                 sauce_labs_path = 'https://saucelabs.com/jobs/'
                 screenshot_error = sauce_labs_path + self.test_attrib["id"]
-            value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error)
-        self.driver.implicitly_wait(5)
+            value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error, logfile)
 
+        if not status:
+            with open(logfile) as f:
+                for line in f:
+                    if '- ERROR -' in line and not ('.Actions.wait.' in line):
+                        log = line
+                        break
+                # log = f.readlines()
+        self.elogs.append(log)
+        self.driver.implicitly_wait(5)
         self.driver.quit()
         self.xresult.testDict = value
         checkEmail.clear_emails()
 
     @classmethod
     def setup_class(cls):
+        cls.elogs    = []
         cls.xresult = TestDict()
         cls.hreport = HTMLClass()
         cls.build_tag = config.build_tag
@@ -143,9 +157,9 @@ class BaseTest(unittest.TestCase):
         x = pc.pfCount - 1
         pc.pfCount = x
         if x == 0:
-            cls.hreport.create_html(cls.outdir)
+            cls.hreport.create_html(cls.outdir, cls.elogs)
 
-    def polish_result(self, tg_name, tc_name, status, browser, OS, screenshot_error):
+    def polish_result(self, tg_name, tc_name, status, browser, OS, screenshot_error, logfile):
         value = {}
         passed = 0
         failed = 0
@@ -156,22 +170,14 @@ class BaseTest(unittest.TestCase):
         self.endTime = time.time()
         durTime = (self.endTime - self.startTime) + 3
 
-        if config.exec_mode == 'local':
-            value["testsuite"] = tg_name
-            value["testcase"] = tc_name
-            value["passed"] = str(passed)
-            value["failed"] = str(failed)
-            value["duration"] = str(durTime)
-            value["browser"] = browser
-            value["os"] = OS
-            value["error"] = screenshot_error
-        elif config.exec_mode == 'remote':
-            value["testsuite"] = tg_name
-            value["testcase"] = tc_name
-            value["passed"] = str(passed)
-            value["failed"] = str(failed)
-            value["duration"] = str(durTime)
-            value["browser"] = browser
-            value["os"] = OS
-            value["error"] = screenshot_error
+        value["testsuite"] = tg_name
+        value["testcase"] = tc_name
+        value["passed"] = str(passed)
+        value["failed"] = str(failed)
+        value["duration"] = str(durTime)
+        value["browser"] = browser
+        value["os"] = OS
+        value["error"] = screenshot_error
+        value["log"] = logfile
+
         return value
