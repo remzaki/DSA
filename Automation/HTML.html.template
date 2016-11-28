@@ -11,11 +11,14 @@
         <title>Automation Test Results</title>
 
         <!-- Bootstrap core CSS -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap.min.css">
+        <!-- temporary: link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap-theme.min.css"-->
+        <!-- temporary: link rel="stylesheet" href="https://cdn.jsdelivr.net/bootstrap/3.3.5/css/bootstrap.min.css"-->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
         <!-- Fonts CSS -->
-        <link rel="stylesheet" href="./Selenium Test Results_files/css" type="text/css">
+        <!-- link rel="stylesheet" href="././css" type="text/css" -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/fontawesome/4.3.0/css/font-awesome.css">
 
         <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
@@ -217,10 +220,13 @@
 				  <th class="col-md-2">
                     <span class="col-label">Platform</span>
                   </th>
-				  <th class="col-md-2">
+				  <th class="col-md-1">
                     <span class="col-label">Browser</span>
                   </th>
 				  <th class="col-md-1">
+                    <span class="col-label">Log</span>
+                  </th>
+                  <th class="col-md-1">
                     <span class="col-label">Error</span>
                   </th>
                 </tr>
