@@ -6,7 +6,7 @@ import re
 from xml.dom.minidom import Document
 
 class HTMLClass(object):
-    def create_table_entry(self, error, browser, OS, duration, failed, passed, name):
+    def create_table_entry(self, i, elog, error, browser, OS, duration, failed, passed, name, log):
         """
         This method creates a table entry with a list of browser, exec time, fail/pass status, test name, and then
         returns the tableresult.
@@ -19,30 +19,36 @@ class HTMLClass(object):
                         <td id='td3'>%s</td>
                         <td id='td3'>%s</td>
                         <td id='td3'>%s</td>
-                    </tr>""" % (name, failed, duration, OS, browser, error)
+                        <td id='td3'>%s</td>
+                    </tr>""" % (name, failed, duration, OS, browser, log, error)
 
         elif passed == "1":
             tableresult = """            <tr>
                         <td id='td2'>%s</td>
-                        <td id='td2'><span style="color:#09AD30">Pass</span></td>
+                        <td id='td2'><a href=# class="btn btn-success btn-xs" role="button">Pass</a>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
+                        <td id='td2'><a href=%s class="btn btn-info btn-xs" role="button" target="_blank">View</a>
                         <td id='td2'>%s</td>
-                    </tr>""" % (name, duration, OS, browser, error)
+                    </tr>""" % (name, duration, OS, browser, log, error)
 
         else:
 			tableresult = """            <tr>
                         <td id='td2'>%s</td>
-                        <td id='td2'><span style="color:#E93C3C">Fail</span></td>
+                        <td id='td2'><a href=%s class="btn btn-danger btn-xs" role="button" target="_blank">Fail</a>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
-                        <td id='td2'><a href=%s>View</a></td>
-                    </tr>""" % (name, duration, OS, browser, error)
+                        <td id='td2'><a href=%s class="btn btn-info btn-xs" role="button" target="_blank">View</a>
+                        <td id='td2'><a href="#elog_%s" class="btn btn-info btn-xs" data-toggle="collapse">View</a>
+                        <div id="elog_%s" class="collapse">
+                        %s
+                        </div>
+                    </tr>""" % (name, error, duration, OS, browser, log, i, i, elog)
         return tableresult
 
-    def process_xml(self, XMLFile, outputdir):
+    def process_xml(self, XMLFile, outputdir, elogs):
         """This method processes an xmlfile and convert it into an html file."""
         HTMLTempalteFile = "HTML.html.template"
         outputname = "report.html"
@@ -75,15 +81,17 @@ class HTMLClass(object):
 
         # get tests results
         tsuite = ""
+        i = 0
         for ts in root.iter('testcase'):
             if not tsuite:
-                tsuite = self.create_table_entry(ts.attrib.get('error'), ts.attrib.get('browser'), ts.attrib.get('os'),
-                                                ts.attrib.get('duration'), ts.attrib.get('fail'),
-                                                ts.attrib.get('pass'), ts.attrib.get('name'))
+                tsuite = self.create_table_entry(i, '', ts.attrib.get('error'), ts.attrib.get('browser'),
+                                                ts.attrib.get('os'), ts.attrib.get('duration'), ts.attrib.get('fail'),
+                                                ts.attrib.get('pass'), ts.attrib.get('name'), ts.attrib.get('log'))
             else:
-                tsuite = tsuite + "\n%s" % self.create_table_entry(ts.attrib.get('error'), ts.attrib.get('browser'),
-                                                ts.attrib.get('os'), ts.attrib.get('duration'),
-                                                ts.attrib.get('fail'), ts.attrib.get('pass'), ts.attrib.get('name'))
+                tsuite = tsuite + "\n%s" % self.create_table_entry(str(i), elogs[i], ts.attrib.get('error'),
+                                                ts.attrib.get('browser'), ts.attrib.get('os'), ts.attrib.get('duration'),
+                                                ts.attrib.get('fail'), ts.attrib.get('pass'), ts.attrib.get('name'), ts.attrib.get('log'))
+                i += 1
             # endif
         # endfor
 
@@ -127,7 +135,7 @@ class HTMLClass(object):
         root  = tree.getroot()
         file_ = xmlfile.split(".")
         file_ = file_[0]
-        resultdict[file_] = {"duration":None, "fail":None, "browser":None, "name":file_, "pass":None, "os":None, "error":None}
+        resultdict[file_] = {"duration":None, "fail":None, "browser":None, "name":file_, "pass":None, "os":None, "error":None, "log":None}
         x = 1
         for ts in root.iter('testcase'):
             result = ts.attrib
@@ -157,6 +165,7 @@ class HTMLClass(object):
             tsNode.setAttribute("os", tc_subdict.get("os"))
             tsNode.setAttribute("browser", tc_subdict.get("browser"))
             tsNode.setAttribute("error", tc_subdict.get("error"))
+            tsNode.setAttribute("log", tc_subdict.get("log"))
             if not tc_subdict.get("pass") == None:
                 total_pass = total_pass + int(tc_subdict.get("pass"))
             if not tc_subdict.get("fail") == None:
@@ -197,10 +206,10 @@ class HTMLClass(object):
             return pattern % (h, m, s)
         return ('%d days, ' + pattern) % (d, h, m, s)
 
-    def create_html(self, outputdir):
+    def create_html(self, outputdir, elogs):
         """This method will call the merge_xmls and process_xml methods to create an html file."""
         xml = self.merge_xmls(outputdir)
-        self.process_xml(xml, outputdir)
+        self.process_xml(xml, outputdir, elogs)
 
 
 # if __name__ == "__main__":
