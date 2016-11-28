@@ -422,7 +422,13 @@ class Actions(object):
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
-        arr = l[0].split(':')
+
+        if ':' in l[0]:
+            arr = l[0].split(':')
+        else:
+            self.log.error('Method was called but with no proper Instruction on argument')
+            obj.assertTrue(False, 'Method was called but with no proper Instruction on argument')
+
         field = arr[0].strip()
         selection = arr[1].strip()
 
