@@ -327,7 +327,17 @@ class Actions(object):
                     try:
                         presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
                         e = self.w8.until(presence_of)
-                        act_value = e.text
+                        try:
+                            the_txt = e.text
+                            if the_txt == '':
+                                the_txt = e.get_attribute('value')
+                        except StaleElementReferenceException:
+                            e = self.getset_elem(driver, element)
+                            the_txt = e.text
+                            if the_txt == '':
+                                the_txt = e.get_attribute('value')
+                        finally:
+                            act_value = the_txt
                     except TimeoutException, exc:
                         self.log.warning('TimeoutException: %s', exc)
                     except Exception, exc:
