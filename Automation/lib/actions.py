@@ -206,11 +206,17 @@ class Actions(object):
                     self.log.error('Exception: %s', exc)
 
                 if enabled:  # if its enabled
-                    self.log.debug('Clear text then input data "%s"', data)
+                    self.log.info('Clear text')
+                    scr = 'document.querySelector("%s").select();' % element
                     try:
-                        e.clear()
+                        driver.execute_script(scr)
+                    except Exception, exc:
+                        self.log.warning(scr)
+                        self.log.warning(exc)
+
+                    self.log.info('Input data "%s"', data)
+                    try:
                         e.send_keys(data)
-                        # self.driver.send_keys(Keys.TAB)
                     except Exception, exc:
                         self.log.error('Exception: %s', exc)
                         obj.assertTrue(False, 'Exception: %s' % exc)
@@ -321,7 +327,17 @@ class Actions(object):
                     try:
                         presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
                         e = self.w8.until(presence_of)
-                        act_value = e.text
+                        try:
+                            the_txt = e.text
+                            if the_txt == '':
+                                the_txt = e.get_attribute('value')
+                        except StaleElementReferenceException:
+                            e = self.getset_elem(driver, element)
+                            the_txt = e.text
+                            if the_txt == '':
+                                the_txt = e.get_attribute('value')
+                        finally:
+                            act_value = the_txt
                     except TimeoutException, exc:
                         self.log.warning('TimeoutException: %s', exc)
                     except Exception, exc:
@@ -406,7 +422,13 @@ class Actions(object):
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
-        arr = l[0].split(':')
+
+        if ':' in l[0]:
+            arr = l[0].split(':')
+        else:
+            self.log.error('Method was called but with no proper Instruction on argument')
+            obj.assertTrue(False, 'Method was called but with no proper Instruction on argument')
+
         field = arr[0].strip()
         selection = arr[1].strip()
 
