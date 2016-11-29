@@ -400,18 +400,8 @@ class Actions(object):
                     self.log.error('Exception: %s', exc)
                     obj.assertTrue(False, 'Exception: %s' % exc)
             else:
-                self.log.warning('PERHAPS WE SHOULD USE JAVASCRIPT CLICK EXECUTION!?')
-                obj.assertTrue(False, 'PERHAPS WE SHOULD USE JAVASCRIPT CLICK EXECUTION!?')
-                # print('js used')
-                # print(driver.execute_script("return document.querySelector('" + element + "')"))
-                # js = driver.execute_script(
-                #     "var a = document.querySelector('" + element + "');"
-                #                                                    "if(typeof(a) != null){"
-                #                                                    "a.click();"
-                #                                                    "console.log('hello world!')"
-                #                                                    "} else{"
-                #                                                    "return 'element typeof() is = ' + typeof(a)}")
-                # print('js log > %s' % js)
+                self.log.error('Element disabled/unavailable %s', element)
+                obj.assertTrue(False, 'Element disabled/unavailable %s' % element)
 
         else:
             self.log.error('Element Dictionary "%s" is not found', edict)
