@@ -30,6 +30,7 @@ class TestDict(object):
             self.value_dict_["browser"]  = data["browser"]
             self.value_dict_["error"]    = data["error"]
             self.value_dict_["log"]      = data["log"]
+            self.value_dict_["elog"]     = data["elog"]
             self.tc_dict[tc] = self.value_dict_
             self.tc_list     = self.tc_dict
             self.dict_[ts]   = self.tc_list
@@ -44,6 +45,7 @@ class TestDict(object):
             self.value_dict["browser"]  = data["browser"]
             self.value_dict["error"]    = data["error"]
             self.value_dict["log"]      = data["log"]
+            self.value_dict["elog"]     = data["elog"]
             self.tc_dict[tc] = self.value_dict
             self.tc_list     = self.tc_dict
             self.dict_[ts]   = self.tc_list
@@ -83,6 +85,7 @@ class TestDict(object):
             tsNode.setAttribute("browser", tc_subdict.get("browser"))
             tsNode.setAttribute("error", tc_subdict.get("error"))
             tsNode.setAttribute("log", tc_subdict.get("log"))
+            tsNode.setAttribute("elog", tc_subdict.get("elog"))
             total_pass = total_pass + int(tc_subdict.get("passed"))
             total_fail = total_fail + int(tc_subdict.get("failed"))
             total_time = total_time + float(tc_subdict.get("duration"))
