@@ -271,6 +271,7 @@ class Actions(object):
     def verify(self, step, obj, l=None):
         self.logger('%s-%s.Actions.verify.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
+        pdf = CheckPDF()
 
         if ':' in l[0]:
             data = l[0].split(':')
@@ -316,7 +317,7 @@ class Actions(object):
                     self.log.error('Element not displayed %s[%s]', edict, element)
                     obj.assertTrue(False, 'Element not displayed %s[%s]' % (edict, element))
 
-            elif way.lower() == 'expected':
+            elif way.lower() in ['expected', 'link', 'text', 'button']:
                 act_value = ''
                 if element in self.capture_.keys():
                     act_value = self.capture_[element]
@@ -347,6 +348,70 @@ class Actions(object):
                     self.log.error('Expected Value does not match with the Actual "%s"!="%s"', exp_value, act_value)
                     obj.assertTrue(False,
                                    'Expected Value does not match with the Actual "%s"!="%s"' % (exp_value, act_value))
+                else:
+                    self.log.info('Expected Value: "%s" == "%s" :Actual Value', exp_value, act_value)
+
+            elif way.lower() == 'input':
+                try:
+                    presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                    e = self.w8.until(presence_of)
+                    try:
+                        type_ = e.get_attribute('type')
+                    except StaleElementReferenceException:
+                        e = self.getset_elem(driver, element)
+                        type_ = e.get_attribute('type')
+                    finally:
+                        act_value = type_
+                except TimeoutException, exc:
+                    self.log.warning('TimeoutException: %s', exc)
+                except Exception, exc:
+                    self.log.warning('Exception: %s', exc)
+
+                if act_value.strip() != exp_value:
+                    self.log.error('Expected Type does not match with the Actual "%s"!="%s"', exp_value, act_value)
+                    obj.assertTrue(False,
+                                   'Expected Type does not match with the Actual "%s"!="%s"' % (exp_value, act_value))
+                else:
+                    self.log.info('Expected Type: "%s" == "%s" :Actual Type', exp_value, act_value)
+
+            elif way.lower() == 'part_number':
+                try:
+                    presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                    e = self.w8.until(presence_of)
+                    # check if element has href tag for pdf capturing
+                    href = e.get_attribute('href')
+                    act_value = None
+                    if href:
+                        pdfs = os.path.join(os.getcwd(), 'pdfs')
+                        if not os.path.exists(pdfs):
+                            os.makedirs(pdfs)
+                        # captures pdf part number from the href link
+                        if '.pdf' in href:
+                            act_value, file_,  = pdf.part_number(href, exp_value)
+                        else:
+                            # captures part number from the pdf content
+                            # Click link in the email content
+                            l = ['Link', element]
+                            step += .1
+                            self.click(step, obj, l)
+                            #time.sleep(6)
+                            act_value, file_ = pdf.part_number("Application.pdf", exp_value)
+                            time.sleep(3)
+                            if act_value:
+                                shutil.move(file_, pdfs + '\\' + way + exp_value + '.pdf')
+                    else:
+                        act_value = e.text
+                except TimeoutException, exc:
+                    self.log.warning('TimeoutException: %s', exc)
+                except Exception, exc:
+                    self.log.warning('Exception: %s', exc)
+
+                if act_value.strip() != exp_value:
+                    self.log.error('Expected Type does not match with the Actual "%s"!="%s"', exp_value, act_value)
+                    obj.assertTrue(False,
+                                   'Expected Type does not match with the Actual "%s"!="%s"' % (exp_value, act_value))
+                else:
+                    self.log.info('Expected Type: "%s" == "%s" :Actual Type', exp_value, act_value)
 
             else:
                 self.log.error('Verify command "%s" is not supported', way)
@@ -741,28 +806,7 @@ class Actions(object):
                     im = im.crop((left, top, right, bottom))  # defines crop points
                     im.save(file_)  # saves new cropped image
                 else:
-                    # check if element has href tag for pdf capturing
-                    href = e.get_attribute('href')
-                    if href:
-                        pdfs = os.path.join(os.getcwd(), 'pdfs')
-                        if not os.path.exists(pdfs):
-                            os.makedirs(pdfs)
-                        # captures pdf part number from the href link
-                        if '.pdf' in href:
-                            pn, file_ = pdf.part_number(href)
-                        else:
-                            # captures part number from the pdf content
-                            # Click link in the email content
-                            l = ['Link', element]
-                            step += .1
-                            self.click(step, obj, l)
-                            time.sleep(6)
-                            pn, file_ = pdf.part_number("Application.pdf")
-                            if pn:
-                                shutil.move(file_, pdfs + '\\' + var + '.pdf')
-                        self.capture_[var] = pn
-                    else:
-                        self.capture_[var] = e.text
+                    self.capture_[var] = e.text
             except TimeoutException, exc:
                 self.log.warning('TimeoutException: %s', exc)
             except Exception, exc:
