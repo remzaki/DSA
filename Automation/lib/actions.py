@@ -111,7 +111,7 @@ class Actions(object):
         try:
             self.w8.until(lambda driver: obj.driver.title.startswith(exp_title))
 
-            if clear_cookie:
+            if clear_cookie and config.exec_mode == 'local':
                 self.log.info('Clear all cookies!')
                 driver.delete_all_cookies()
                 self.log.info('Refresh page to request new cookies')
