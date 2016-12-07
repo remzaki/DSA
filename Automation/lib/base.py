@@ -134,7 +134,6 @@ class BaseTest(unittest.TestCase):
         if not brk:
             elog = None
         value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error, logfile, elog)
-        self.driver.implicitly_wait(5)
         self.driver.quit()
         self.xresult.testDict = value
         checkEmail.clear_emails()
