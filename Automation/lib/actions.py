@@ -826,13 +826,14 @@ class Actions(object):
         date_btn = self.elements.get_data("server_date_bttn")
 
         c1 = self.getset_elem(driver, date_link)
-        c1.click()
+        if date not in c1.text:
+            c1.click()
 
-        c2 = self.getset_elem(driver, date_fld)
-        c2.clear()
-        c2.send_keys(date)
-        c2.send_keys(Keys.TAB)
-        time.sleep(0.5)
+            c2 = self.getset_elem(driver, date_fld)
+            c2.clear()
+            c2.send_keys(date)
+            c2.send_keys(Keys.TAB)
+            time.sleep(0.5)
 
-        c3 = self.getset_elem(driver, date_btn)
-        c3.click()
+            c3 = self.getset_elem(driver, date_btn)
+            c3.click()
