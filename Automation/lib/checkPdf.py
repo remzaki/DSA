@@ -39,6 +39,8 @@ class CheckPDF(object):
             # regexes = ['(\w{4})-G-(\w{4})', '(\w{4})-UHA-(\w{4})']  # 348E-G-0816, 230F-UHA-0816:for discount card
 
         pdfReader = PyPDF2.PdfFileReader(pdfFileObj)
+        if pdfReader.isEncrypted:
+            pdfReader.decrypt(password='')
         numPage = pdfReader.numPages
         print 'numpage = %s' % numPage
         brk = None
