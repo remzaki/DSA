@@ -94,14 +94,14 @@ class BaseTest(unittest.TestCase):
         tg_name = id_[1]
         tg_name = tg_name + "_" + str(pc.pfCount)
         tc_name = id_[2]
-        screenshot_error = None
+        screenshot = None
 
         if config.exec_mode == 'local':
             logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
                                    self.__name__ + '-' + self.browser + ".log")
             if not status:
                 self.driver.save_screenshot('.\logs\%s.png' % self.__name__)
-                screenshot_error = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__ + ".png")
+                screenshot = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__ + ".png")
             OS = platform.system() + " " + platform.release()
             browser = self.browser
 
@@ -116,10 +116,11 @@ class BaseTest(unittest.TestCase):
             OS = self.test_attrib["os"]
             logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
                                    self.__name__ + '-' + self.desired_capabilities['browserName'] + ".log")
-            if not status:
-                sauce_labs_path = 'https://saucelabs.com/jobs/'
-                screenshot_error = sauce_labs_path + self.test_attrib["id"]
-        brk = 0
+
+            sauce_labs_path = 'https://saucelabs.com/jobs/'
+            screenshot = sauce_labs_path + self.test_attrib["id"]
+
+        elog = None
         if not status:
             with open(logfile) as f:
                 for line in f:
@@ -128,15 +129,13 @@ class BaseTest(unittest.TestCase):
                             elog = line[:250]
                         else:
                             elog = line
-                        brk = 1
+
                         break
                 # log = f.readlines()
-        if not brk:
-            elog = None
-        value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot_error, logfile, elog)
-        self.driver.quit()
+        value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot, logfile, elog)
         self.xresult.testDict = value
         checkEmail.clear_emails()
+        self.driver.quit()
 
     @classmethod
     def setup_class(cls):
@@ -161,7 +160,7 @@ class BaseTest(unittest.TestCase):
         if x == 0:
             cls.hreport.create_html(cls.outdir)
 
-    def polish_result(self, tg_name, tc_name, status, browser, OS, screenshot_error, logfile, elog):
+    def polish_result(self, tg_name, tc_name, status, browser, OS, screenshot, logfile, elog):
         value = {}
         passed = 0
         failed = 0
@@ -179,7 +178,7 @@ class BaseTest(unittest.TestCase):
         value["duration"] = str(durTime)
         value["browser"] = browser
         value["os"] = OS
-        value["error"] = screenshot_error
+        value["screenshot"] = screenshot
         value["log"] = logfile
         value["elog"] = elog
 
