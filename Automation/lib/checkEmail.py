@@ -11,6 +11,7 @@ import email
 import re
 import os
 import shutil
+import time
 
 
 class CheckEmail(object):
@@ -132,7 +133,7 @@ class CheckEmail(object):
         service = discovery.build(config.mail, config.m_version, http=creds.authorize(Http()))
         return email_add, service
 
-    def get_email(self, typ, email_file):
+    def get_email(self, typ, email_file, search_duration):
         email_add, service = self.get_auth()
         if typ.lower() == "customized quote":
             q = config.q_sub_cq
@@ -144,8 +145,16 @@ class CheckEmail(object):
             q = config.q_sub_scq
 
         messages = None
+        timeout = None
+        check_duration = time.time() + search_duration
         while not messages:
             messages = self.ListMessagesMatchingQuery(service, email_add, query=q)
+            if time.time() > check_duration:
+                timeout = 'search_limit_reached'
+                break
+        if timeout:
+            url, exp_title, uid = timeout
+            return url, exp_title, uid
         id_ = []
         for list in messages:
             for key in list:
