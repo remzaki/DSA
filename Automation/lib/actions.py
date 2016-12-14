@@ -344,12 +344,12 @@ class Actions(object):
                     except Exception, exc:
                         self.log.warning('Exception: %s', exc)
 
-                if act_value.strip() != exp_value:
-                    self.log.error('Expected Value does not match with the Actual "%s"!="%s"', exp_value, act_value)
+                if str(act_value).strip() != exp_value:
+                    self.log.error('Expected Value does not match with the Actual "%s"!="%s"', exp_value, str(act_value))
                     obj.assertTrue(False,
-                                   'Expected Value does not match with the Actual "%s"!="%s"' % (exp_value, act_value))
+                                   'Expected Value does not match with the Actual "%s"!="%s"' % (exp_value, str(act_value)))
                 else:
-                    self.log.info('Expected Value: "%s" == "%s" :Actual Value', exp_value, act_value)
+                    self.log.info('Expected Value: "%s" == "%s" :Actual Value', exp_value, str(act_value))
 
             elif way.lower() == 'input':
                 try:
@@ -367,7 +367,7 @@ class Actions(object):
                 except Exception, exc:
                     self.log.warning('Exception: %s', exc)
 
-                if act_value.strip() != exp_value:
+                if str(act_value).strip() != exp_value:
                     self.log.error('Expected Type does not match with the Actual "%s"!="%s"', exp_value, act_value)
                     obj.assertTrue(False,
                                    'Expected Type does not match with the Actual "%s"!="%s"' % (exp_value, act_value))
@@ -386,7 +386,7 @@ class Actions(object):
                         if not os.path.exists(pdfs):
                             os.makedirs(pdfs)
                         # captures pdf part number from the href link
-                        if '.pdf' in href:
+                        if 'pdf' in href:
                             act_value, file_,  = pdf.part_number(href, exp_value)
                         else:
                             # captures part number from the pdf content
@@ -406,7 +406,7 @@ class Actions(object):
                 except Exception, exc:
                     self.log.warning('Exception: %s', exc)
 
-                if act_value.strip() != exp_value:
+                if str(act_value).strip() != exp_value:
                     self.log.error('Expected Type does not match with the Actual "%s"!="%s"', exp_value, act_value)
                     obj.assertTrue(False,
                                    'Expected Type does not match with the Actual "%s"!="%s"' % (exp_value, act_value))
@@ -713,10 +713,14 @@ class Actions(object):
 
         if check.lower() == 'email':
             exp_title = None
+            search_duration = 90
             while not exp_title:
-                url, exp_title, uid = checkEmail.get_email(self.typ, email_file)
+                url, exp_title, uid = checkEmail.get_email(self.typ, email_file, search_duration)
             self.uid = uid
 
+            if exp_title == 'search_limit_reached':
+                self.log.error('Email not found after "%s" seconds', str(search_duration))
+                obj.assertTrue(False, 'Email not found after "%s" seconds' % str(search_duration))
             #Open email html file
             l = [url, exp_title]
             step += .1
@@ -758,7 +762,7 @@ class Actions(object):
     def capture(self, step, obj, l=None):
         self.logger('%s-%s.Actions.capture.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
-        pdf = CheckPDF()
+
 
         driver = obj.driver
         var = l[0].strip()
