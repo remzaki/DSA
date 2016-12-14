@@ -6,7 +6,7 @@ import re
 from xml.dom.minidom import Document
 
 class HTMLClass(object):
-    def create_table_entry(self,i, elog, error, browser, OS, duration, failed, passed, name, log):
+    def create_table_entry(self,i, elog, screenshot, browser, OS, duration, failed, passed, name, log):
         """
         This method creates a table entry with a list of browser, exec time, fail/pass status, test name, and then
         returns the tableresult.
@@ -20,18 +20,18 @@ class HTMLClass(object):
                         <td id='td3'>%s</td>
                         <td id='td3'>%s</td>
                         <td id='td3'>%s</td>
-                    </tr>""" % (name, failed, duration, OS, browser, log, error)
+                    </tr>""" % (name, failed, duration, OS, browser, log, elog)
 
         elif passed == "1":
             tableresult = """            <tr>
                         <td id='td2'>%s</td>
-                        <td id='td2'><a href=# class="btn btn-success btn-xs" role="button">Pass</a>
+                        <td id='td2'><a href="%s" class="btn btn-success btn-xs" role="button" target="_blank">Pass</a>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
                         <td id='td2'>%s</td>
                         <td id='td2'><a href="%s" class="btn btn-info btn-xs" role="button" target="_blank">View</a>
                         <td id='td2'>%s</td>
-                    </tr>""" % (name, duration, OS, browser, log, error)
+                    </tr>""" % (name, screenshot, duration, OS, browser, log, elog)
 
         else:
 			tableresult = """            <tr>
@@ -45,7 +45,7 @@ class HTMLClass(object):
                         <div id="elog_%s" class="collapse">
                         %s
                         </div>
-                    </tr>""" % (name, error, duration, OS, browser, log, i, i, elog)
+                    </tr>""" % (name, screenshot, duration, OS, browser, log, i, i, elog)
         return tableresult
 
     def process_xml(self, XMLFile, outputdir):
@@ -84,11 +84,11 @@ class HTMLClass(object):
         i = 0
         for ts in root.iter('testcase'):
             if not tsuite:
-                tsuite = self.create_table_entry(i, ts.attrib.get('elog'), ts.attrib.get('error'), ts.attrib.get('browser'),
+                tsuite = self.create_table_entry(i, ts.attrib.get('elog'), ts.attrib.get('screenshot'), ts.attrib.get('browser'),
                                                 ts.attrib.get('os'), ts.attrib.get('duration'), ts.attrib.get('fail'),
                                                 ts.attrib.get('pass'), ts.attrib.get('name'), ts.attrib.get('log'))
             else:
-                tsuite = tsuite + "\n%s" % self.create_table_entry(i, ts.attrib.get('elog'), ts.attrib.get('error'),
+                tsuite = tsuite + "\n%s" % self.create_table_entry(i, ts.attrib.get('elog'), ts.attrib.get('screenshot'),
                                                 ts.attrib.get('browser'), ts.attrib.get('os'), ts.attrib.get('duration'),
                                                 ts.attrib.get('fail'), ts.attrib.get('pass'), ts.attrib.get('name'), ts.attrib.get('log'))
                 i += 1
@@ -135,7 +135,7 @@ class HTMLClass(object):
         root  = tree.getroot()
         file_ = xmlfile.split(".")
         file_ = file_[0]
-        resultdict[file_] = {"duration":None, "fail":None, "browser":None, "name":file_, "pass":None, "os":None, "error":None, "log":None, "elog":None}
+        resultdict[file_] = {"duration":None, "fail":None, "browser":None, "name":file_, "pass":None, "os":None, "screenshot":None, "log":None, "elog":None}
         x = 1
         for ts in root.iter('testcase'):
             result = ts.attrib
@@ -164,7 +164,7 @@ class HTMLClass(object):
             tsNode.setAttribute("fail", tc_subdict.get("fail"))
             tsNode.setAttribute("os", tc_subdict.get("os"))
             tsNode.setAttribute("browser", tc_subdict.get("browser"))
-            tsNode.setAttribute("error", tc_subdict.get("error"))
+            tsNode.setAttribute("screenshot", tc_subdict.get("screenshot"))
             tsNode.setAttribute("log", tc_subdict.get("log"))
             tsNode.setAttribute("elog", tc_subdict.get("elog"))
             if not tc_subdict.get("pass") == None:
@@ -190,6 +190,7 @@ class HTMLClass(object):
         result    = doc.toprettyxml(indent='  ')
         text_re   = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
         clean_xml = text_re.sub('>\g<1></', result)
+        clean_xml = unicode(clean_xml)
         return clean_xml
 
     def sec2time(self, sec, n_msec=0):

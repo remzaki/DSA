@@ -28,7 +28,7 @@ class TestDict(object):
             self.value_dict_["duration"] = data["duration"]
             self.value_dict_["os"]       = data["os"]
             self.value_dict_["browser"]  = data["browser"]
-            self.value_dict_["error"]    = data["error"]
+            self.value_dict_["screenshot"]    = data["screenshot"]
             self.value_dict_["log"]      = data["log"]
             self.value_dict_["elog"]     = data["elog"]
             self.tc_dict[tc] = self.value_dict_
@@ -43,7 +43,7 @@ class TestDict(object):
             self.value_dict["duration"] = data["duration"]
             self.value_dict["os"]       = data["os"]
             self.value_dict["browser"]  = data["browser"]
-            self.value_dict["error"]    = data["error"]
+            self.value_dict["screenshot"]    = data["screenshot"]
             self.value_dict["log"]      = data["log"]
             self.value_dict["elog"]     = data["elog"]
             self.tc_dict[tc] = self.value_dict
@@ -83,7 +83,7 @@ class TestDict(object):
             tsNode.setAttribute("duration", "%.3f" % float(tc_subdict.get("duration")))
             tsNode.setAttribute("os", tc_subdict.get("os"))
             tsNode.setAttribute("browser", tc_subdict.get("browser"))
-            tsNode.setAttribute("error", tc_subdict.get("error"))
+            tsNode.setAttribute("screenshot", tc_subdict.get("screenshot"))
             tsNode.setAttribute("log", tc_subdict.get("log"))
             tsNode.setAttribute("elog", tc_subdict.get("elog"))
             total_pass = total_pass + int(tc_subdict.get("passed"))
@@ -102,6 +102,7 @@ class TestDict(object):
         result = doc.toprettyxml(indent='  ')
         text_re = re.compile('>\n\s+([^<>\s].*?)\n\s+</', re.DOTALL)
         clean_xml = text_re.sub('>\g<1></', result)
+        clean_xml = unicode(clean_xml)
         return clean_xml
 
     def create_xml(self, report_dict):
