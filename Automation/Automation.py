@@ -107,5 +107,5 @@ class TestClass(BaseTest):
 
     __metaclass__ = TestSequenceMeta
 
-if __name__ == '__main__' or __name__ == 'Automation':
+if __name__ == '__main__':
     pytest.main(config.parallel)
