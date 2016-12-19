@@ -116,6 +116,10 @@ class Actions(object):
                 driver.delete_all_cookies()
                 self.log.info('Refresh page to request new cookies')
                 driver.refresh()
+
+            if config.release:
+                time.sleep(1)
+                self.release(step + 0.5, obj, ['', ''])
         except TimeoutException:
             self.log.error('Expected Page Title is "%s" but current Title is "%s"' % (exp_title, obj.driver.title))
             obj.assertEqual(exp_title, obj.driver.title,
@@ -824,13 +828,13 @@ class Actions(object):
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
-        date = l[0]
+        date = config.release
         date_link = self.elements.get_data("server_date_lnk")
         date_fld = self.elements.get_data("server_date_fld")
         date_btn = self.elements.get_data("server_date_bttn")
 
         c1 = self.getset_elem(driver, date_link)
-        if date not in c1.text:
+        if date != '' and date not in c1.text:
             c1.click()
 
             c2 = self.getset_elem(driver, date_fld)

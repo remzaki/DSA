@@ -12,6 +12,11 @@ timeout = 30
 # debug_stop = step number that you want to stop when debugging
 debug_stop = 0
 
+# release date to be configured in the App site Server Date
+# values:
+#		mm/dd/yyyy = to be set in Server date (i.e. 12/16/2016)
+#		empty = set to empty if you dont want to change the Server date
+release = 
 
 # Setup for execution = local
 [local]

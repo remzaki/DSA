@@ -25,6 +25,7 @@ class config(object):
 
     timeout = config.getfloat('setup', 'timeout')
     stop_at_step = config.getint('setup', 'debug_stop')
+    release = config.get('setup', 'release')
 
     exec_mode = config.get('setup', 'execution')
     if exec_mode == 'local':
