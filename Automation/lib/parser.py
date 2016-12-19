@@ -152,7 +152,7 @@ class Parser:
     def get_datadict(self):
         """This method calls the read_csvfiles method."""
         data   = self.read_csvfiles()
-        print data
+        # print data
         return data
 
 
