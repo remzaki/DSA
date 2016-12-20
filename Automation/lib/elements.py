@@ -14,16 +14,17 @@ class Elements:
     def __init__(self):
         self.data = {}
         if config.mode == 'offline':
-            path = "./Elements*.json"
+            path = "./Elements_*.json"
             g = glob.glob(path)
-            filename = g[len(g) - 1]
-            with open(filename, 'r') as data_file:
-                contents = json.load(data_file)
+            if len(g) > 1:
+                filename = g[len(g) - 1]
+                with open(filename, 'r') as data_file:
+                    contents = json.load(data_file)
 
-            for content in contents:
-                name = content['Name']
-                value = content['Value']
-                self.data[name] = value
+                for content in contents:
+                    name = content['Name']
+                    value = content['Value']
+                    self.data[name] = value
 
     def get_data(self, name):
         data = False
