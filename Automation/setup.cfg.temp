@@ -12,6 +12,16 @@ timeout = 30
 # debug_stop = step number that you want to stop when debugging
 debug_stop = 0
 
+# server connection state
+# values:
+#		online = connects to the server_address to get the elements
+#		offline = requires a downloaded file copy of the elements
+server_connection = online
+
+# server address
+# include the port if necessary (i.e. server:8080)
+server_address = vctxxd-dp064
+
 # release date to be configured in the App site Server Date
 # values:
 #		mm/dd/yyyy = to be set in Server date (i.e. 12/16/2016)

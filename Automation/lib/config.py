@@ -25,6 +25,8 @@ class config(object):
 
     timeout = config.getfloat('setup', 'timeout')
     stop_at_step = config.getint('setup', 'debug_stop')
+    server = config.get('setup', 'server_address')
+    mode = config.get('setup', 'server_connection')
     release = config.get('setup', 'release')
 
     exec_mode = config.get('setup', 'execution')
