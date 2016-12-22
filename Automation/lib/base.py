@@ -122,7 +122,9 @@ class BaseTest(unittest.TestCase):
             sauce_labs_path = 'https://saucelabs.com/beta/tests/'
             screenshot = sauce_labs_path + self.test_attrib["id"]
             duration = self.test_attrib["modification_time"] - self.test_attrib["creation_time"]
-
+            if 'deviceName' in self.desired_capabilities:
+                OS = self.desired_capabilities['deviceName']
+                browser = self.desired_capabilities['browserName']
         elog = ''
         if not status:
             with open(logfile) as f:
@@ -147,7 +149,7 @@ class BaseTest(unittest.TestCase):
             OS = OS.replace('.', ' ')
 
         if config.parallelism:
-            tg_name = id_[1] + ' ' + OS + ' - ' + browser
+            tg_name = id_[1] + ' ' + OS + '-' + browser
 
         text_file = os.path.join(os.path.join(os.path.abspath("."), "report"), tg_name + '-' + tc_name + ".txt")
         file_ = open(text_file, "w")
