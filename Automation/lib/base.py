@@ -94,7 +94,7 @@ class BaseTest(unittest.TestCase):
         tg_name = id_[1]
         tg_name = tg_name + "_" + str(pc.pfCount)
         tc_name = id_[2]
-        screenshot = None
+        screenshot = ''
 
         if config.exec_mode == 'local':
             logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
@@ -104,6 +104,8 @@ class BaseTest(unittest.TestCase):
                 screenshot = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__ + ".png")
             OS = platform.system() + " " + platform.release()
             browser = self.browser
+            self.endTime = time.time()
+            duration = (self.endTime - self.startTime) + 3
 
         elif config.exec_mode == 'remote':
             sauce_client = SauceClient(BaseTest.username, BaseTest.access_key)
@@ -117,10 +119,11 @@ class BaseTest(unittest.TestCase):
             logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
                                    self.__name__ + '-' + self.desired_capabilities['browserName'] + ".log")
 
-            sauce_labs_path = 'https://saucelabs.com/jobs/'
+            sauce_labs_path = 'https://saucelabs.com/beta/tests/'
             screenshot = sauce_labs_path + self.test_attrib["id"]
+            duration = self.test_attrib["modification_time"] - self.test_attrib["creation_time"]
 
-        elog = None
+        elog = ''
         if not status:
             with open(logfile) as f:
                 for line in f:
@@ -129,18 +132,41 @@ class BaseTest(unittest.TestCase):
                             elog = line[:250]
                         else:
                             elog = line
-
+                        if '\n' in elog:
+                            elog = elog.replace('\n', '')
                         break
                 # log = f.readlines()
-        value = self.polish_result(tg_name, tc_name, status, browser, OS, screenshot, logfile, elog)
-        self.xresult.testDict = value
+        if OS == 'Windows 2008':
+            OS = 'Windows 7'
+        elif OS == 'Windows 2012':
+            OS = 'Windows 8'
+        elif OS == 'Windows 2012 R2':
+            OS = 'Windows 8 1'
+
+        if '.' in OS:
+            OS = OS.replace('.', ' ')
+
+        if config.parallelism:
+            tg_name = id_[1] + ' ' + OS + ' - ' + browser
+
+        text_file = os.path.join(os.path.join(os.path.abspath("."), "report"), tg_name + '-' + tc_name + ".txt")
+        file_ = open(text_file, "w")
+        file_.write(tg_name + '\n')
+        file_.write(tc_name + '\n')
+        file_.write(str(status) + '\n')
+        file_.write(browser + '\n')
+        file_.write(OS + '\n')
+        file_.write(screenshot + '\n')
+        file_.write(logfile + '\n')
+        file_.write(elog + '\n')
+        file_.write(str(duration))
+        file_.close()
+
         checkEmail.clear_emails()
         self.driver.quit()
 
     @classmethod
     def setup_class(cls):
-        cls.xresult = TestDict()
-        cls.hreport = HTMLClass()
         cls.build_tag = config.build_tag
         cls.tunnel_id = config.tunnel_id
         cls.username = config.username
@@ -154,32 +180,4 @@ class BaseTest(unittest.TestCase):
 
     @classmethod
     def teardown_class(cls):
-        cls.outdir = cls.xresult.create_xml(cls.xresult.testDict)
-        x = pc.pfCount - 1
-        pc.pfCount = x
-        if x == 0:
-            cls.hreport.create_html(cls.outdir)
-
-    def polish_result(self, tg_name, tc_name, status, browser, OS, screenshot, logfile, elog):
-        value = {}
-        passed = 0
-        failed = 0
-        if status:
-            passed = 1
-        else:
-            failed = 1
-        self.endTime = time.time()
-        durTime = (self.endTime - self.startTime) + 3
-
-        value["testsuite"] = tg_name
-        value["testcase"] = tc_name
-        value["passed"] = str(passed)
-        value["failed"] = str(failed)
-        value["duration"] = str(durTime)
-        value["browser"] = browser
-        value["os"] = OS
-        value["screenshot"] = screenshot
-        value["log"] = logfile
-        value["elog"] = elog
-
-        return value
+        pc.pfCount -= 1
