@@ -97,8 +97,8 @@ class BaseTest(unittest.TestCase):
         screenshot = ''
 
         if config.exec_mode == 'local':
-            logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
-                                   self.__name__ + '-' + self.browser + ".log")
+            # logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
+            #                        self.__name__ + '-' + self.browser + ".log")
             if not status:
                 self.driver.save_screenshot('.\logs\%s.png' % self.__name__)
                 screenshot = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__ + ".png")
@@ -114,18 +114,31 @@ class BaseTest(unittest.TestCase):
             # with(open('logs\\' + test_name + '.txt', 'w')) as outfile:
             #    outfile.write("SauceOnDemandSessionID=%s job-name=%s\n" % (self.driver.session_id, test_name))
             self.test_attrib = sauce_client.jobs.get_job_attributes(self.driver.session_id)
-            browser = self.test_attrib["browser"]
-            OS = self.test_attrib["os"]
-            logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
-                                   self.__name__ + '-' + self.desired_capabilities['browserName'] + ".log")
+            # browser = self.test_attrib["browser"]
+            # OS = self.test_attrib["os"]
+            if 'platform' in self.desired_capabilities:
+                OS = self.desired_capabilities['platform']
+            elif 'deviceName' in self.desired_capabilities:
+                OS = self.desired_capabilities['deviceName']
+            browser = self.desired_capabilities['browserName']
+            # logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
+            #                        self.__name__ + '-' + self.desired_capabilities['browserName'] + ".log")
 
             sauce_labs_path = 'https://saucelabs.com/beta/tests/'
             screenshot = sauce_labs_path + self.test_attrib["id"]
             duration = self.test_attrib["modification_time"] - self.test_attrib["creation_time"]
-            if 'deviceName' in self.desired_capabilities:
-                OS = self.desired_capabilities['deviceName']
-                browser = self.desired_capabilities['browserName']
+        if OS == 'Windows 2008':
+            OS = 'Windows 7'
+        elif OS == 'Windows 2012':
+            OS = 'Windows 8'
+        elif OS == 'Windows 2012 R2':
+            OS = 'Windows 8 1'
+
+        if '.' in OS:
+            OS = OS.replace('.', ' ')
         elog = ''
+        logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
+                               self.__name__ + '-' + OS + '-' + browser + ".log")
         if not status:
             with open(logfile) as f:
                 for line in f:
@@ -138,18 +151,9 @@ class BaseTest(unittest.TestCase):
                             elog = elog.replace('\n', '')
                         break
                 # log = f.readlines()
-        if OS == 'Windows 2008':
-            OS = 'Windows 7'
-        elif OS == 'Windows 2012':
-            OS = 'Windows 8'
-        elif OS == 'Windows 2012 R2':
-            OS = 'Windows 8 1'
 
-        if '.' in OS:
-            OS = OS.replace('.', ' ')
-
-        if config.parallelism:
-            tg_name = id_[1] + ' ' + OS + '-' + browser
+        if config.parallelism and config.exec_mode == 'remote':
+            tg_name = id_[1] + '-' + OS + '-' + browser
 
         text_file = os.path.join(os.path.join(os.path.abspath("."), "report"), tg_name + '-' + tc_name + ".txt")
         file_ = open(text_file, "w")
