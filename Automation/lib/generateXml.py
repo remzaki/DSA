@@ -123,7 +123,7 @@ class TestDict(object):
             with open(os.path.join(tr_dir, (ts_key + ".xml")), "w") as f:
                 f.write(self.create_xml_report(tc_dict))
             f.close()
-        return tr_dir
+        # return tr_dir
 
 
 # if __name__ == '__main__':
