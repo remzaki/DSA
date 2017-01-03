@@ -22,7 +22,15 @@ class TestSequenceMeta(type):
     def __new__(mcs, name, bases, dict):
         def gen_test(testdatas):
             def gen(self):
-                log_name = '%s-%s' % (self.__name__, self.desired_capabilities['browserName'])
+                if 'platform' in self.desired_capabilities:
+                    OS = self.desired_capabilities['platform']
+                elif 'deviceName' in self.desired_capabilities:
+                    OS = self.desired_capabilities['deviceName']
+                else:
+                    OS = platform.system() + " " + platform.release()
+                if '.' in OS:
+                    OS = OS.replace('.', ' ')
+                log_name = '%s-%s-%s' % (self.__name__, OS, self.desired_capabilities['browserName'])
                 logger.setup_logger(log_name, '%s.log' % log_name, level=logging.DEBUG)
                 log = logging.getLogger(log_name)
                 log.info('Executing Test: %s', self.__name__)
@@ -153,8 +161,9 @@ if __name__ == '__main__':
             values["log"] = a[6]
             values["elog"] = a[7]
             xresult.testDict = values
-        outdir = xresult.create_xml(xresult.testDict)
-    hreport.create_html(outdir)
+        # outdir = xresult.create_xml(xresult.testDict)
+        xresult.create_xml(xresult.testDict)
+    hreport.create_html(path_)
     if os.path.exists(os.path.join(path_, 'report.html')):
         filelist = [f for f in files_ if f.endswith(".txt")]
         for f in filelist:
