@@ -28,6 +28,7 @@ class Actions(object):
 
     def __init__(self):
         # some class variables
+        self.log_name = None
         self.elements = Elements()
         self.log = None
         self.w8 = None
@@ -37,8 +38,8 @@ class Actions(object):
         self.uid = None
         self.capture_ = {}
 
-    def logger(self, logger_name):
-        self.log = logging.getLogger(logger_name)
+    def logger(self, suffix):
+        self.log = logging.getLogger(self.log_name + ".Actions" + suffix)
 
     def trim_name(self, p):
         """General trimming helper purposes. Arguments:
@@ -70,17 +71,17 @@ class Actions(object):
         self.w8 = WebDriverWait(obj.driver, timeout=config.timeout)
 
     def testname(self, step, obj, l=None):
-        self.logger(obj._testMethodName)
+        self.logger(".testname")
         self.log.info('Test Name: %s', l[0])
         self.setup_global(obj)
 
     def description(self, step, obj, l=None):
-        self.logger(obj._testMethodName)
+        self.logger(".description")
         self.log.info('Description: ' + l[0])
 
     def url(self, step, obj, l=None, clear_cookie=True):
         """Method for accessing the webpage URL"""
-        self.logger('%s-%s.Actions.url.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.url.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
@@ -132,7 +133,7 @@ class Actions(object):
         # self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
     def wait(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.wait.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.wait.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
@@ -178,7 +179,7 @@ class Actions(object):
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
 
     def enter(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.enter.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.enter.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
@@ -250,7 +251,7 @@ class Actions(object):
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
 
     def pause(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.pause.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.pause.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         msg = l[0]
@@ -273,7 +274,7 @@ class Actions(object):
         self.log.info("Pause timer finish")
 
     def verify(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.verify.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.verify.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
         pdf = CheckPDF()
 
@@ -349,9 +350,11 @@ class Actions(object):
                         self.log.warning('Exception: %s', exc)
 
                 if str(act_value).strip() != exp_value:
-                    self.log.error('Expected Value does not match with the Actual "%s"!="%s"', exp_value, str(act_value))
+                    self.log.error('Expected Value does not match with the Actual "%s"!="%s"', exp_value,
+                                   str(act_value))
                     obj.assertTrue(False,
-                                   'Expected Value does not match with the Actual "%s"!="%s"' % (exp_value, str(act_value)))
+                                   'Expected Value does not match with the Actual "%s"!="%s"' % (
+                                   exp_value, str(act_value)))
                 else:
                     self.log.info('Expected Value: "%s" == "%s" :Actual Value', exp_value, str(act_value))
 
@@ -391,14 +394,14 @@ class Actions(object):
                             os.makedirs(pdfs)
                         # captures pdf part number from the href link
                         if 'pdf' in href:
-                            act_value, file_,  = pdf.part_number(href, exp_value)
+                            act_value, file_, = pdf.part_number(href, exp_value)
                         else:
                             # captures part number from the pdf content
                             # Click link in the email content
                             l = ['Link', element]
                             step += .1
                             self.click(step, obj, l)
-                            #time.sleep(6)
+                            # time.sleep(6)
                             act_value, file_ = pdf.part_number("Application.pdf", exp_value)
                             time.sleep(3)
                             if act_value:
@@ -427,7 +430,7 @@ class Actions(object):
 
     def click(self, step, obj, l=None):
         """Method for clicking an element in the webpage"""
-        self.logger('%s-%s.Actions.click.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.click.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
@@ -477,7 +480,7 @@ class Actions(object):
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
 
     def select(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.select.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.select.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
@@ -578,7 +581,7 @@ class Actions(object):
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
 
     def choose(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.choose.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.choose.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver
@@ -627,7 +630,7 @@ class Actions(object):
                     top_score = len(arr_keys) - 1
 
                     self.log.info('Check if plan "%s" matches', plan)
-                    for x in range(1, len(arr_keys)):   # for each details in the plan
+                    for x in range(1, len(arr_keys)):  # for each details in the plan
                         edict = self.trim_name(arr_keys[x])
                         if edict:
                             got_data = self.elements.get_data(edict)
@@ -701,7 +704,7 @@ class Actions(object):
 
     def check(self, step, obj, l=None):
         """Method for accessing the sent email"""
-        self.logger('%s-%s.Actions.check.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.check.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
         checkEmail = CheckEmail()
 
@@ -712,8 +715,9 @@ class Actions(object):
             obj.assertTrue(False, 'Method was called but with no proper Instruction on argument')
 
         check = data[0].strip()
-        #exp_value = data[1].strip()
-        email_file = obj._testMethodName + "_" + obj.desired_capabilities['browserName'] + ".html"
+        # exp_value = data[1].strip()
+        # email_file = obj._testMethodName + "_" + obj.desired_capabilities['browserName'] + ".html"
+        email_file = self.log_name + ".html"
 
         if check.lower() == 'email':
             exp_title = None
@@ -725,7 +729,7 @@ class Actions(object):
             if exp_title == 'search_limit_reached':
                 self.log.error('Email not found after "%s" seconds', str(search_duration))
                 obj.assertTrue(False, 'Email not found after "%s" seconds' % str(search_duration))
-            #Open email html file
+            # Open email html file
             l = [url, exp_title]
             step += .1
             self.url(step, obj, l, clear_cookie=False)
@@ -741,10 +745,11 @@ class Actions(object):
 
     def key(self, step, obj, l=None):
         """Method for sending key strokes"""
-        self.logger('%s-%s.Actions.key.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.key.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         arg = l[0].upper()
+        key = None
         try:
             key = getattr(Keys, arg)
         except AttributeError:
@@ -764,9 +769,8 @@ class Actions(object):
             e.send_keys(key)
 
     def capture(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.capture.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.capture.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
-
 
         driver = obj.driver
         var = l[0].strip()
@@ -824,7 +828,7 @@ class Actions(object):
             obj.assertTrue(got_data, 'Element Dictionary "%s" is not found' % edict)
 
     def release(self, step, obj, l=None):
-        self.logger('%s-%s.Actions.release.%s' % (obj._testMethodName, obj.desired_capabilities['browserName'], step))
+        self.logger('.release.%s' % step)
         self.log.debug('Parameters: ' + l[0] + " | " + l[1])
 
         driver = obj.driver

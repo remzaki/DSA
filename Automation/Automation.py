@@ -37,6 +37,7 @@ class TestSequenceMeta(type):
                 
                 self.assertTrue(testdatas is not None)
                 actions = Actions()
+                actions.log_name = log_name
                 self.driver.implicitly_wait(config.timeout)
                 for step, d in enumerate(testdatas):
                     cmd = d[0].lower()
