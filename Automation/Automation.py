@@ -138,7 +138,6 @@ class TestClass(BaseTest):
                     tg_dict[key] = []
                 # append some value
                 tg_dict[key].append(a)
-
         for key in tg_dict:
             for a in tg_dict[key]:
                 values = {}
