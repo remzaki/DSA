@@ -117,54 +117,55 @@ class TestClass(BaseTest):
 
     __metaclass__ = TestSequenceMeta
 
-if __name__ == '__main__':
-    xresult = TestDict()
-    hreport = HTMLClass()
-    pytest.main(config.parallel)
-    tg_dict = {}
-    path_ = os.path.join(os.path.abspath("."), "report")
-    files_ = os.listdir(path_)
-    for file_ in files_:
-        if file_.endswith('.txt'):
-            fyl = os.path.join(path_, file_)
-            f = open(fyl, "r")
-            a = []
-            for line in f:
-                a.append(line.replace('\n', ''))
-            f.close()
-            key = a[0]
-            # check if key is already present in tg_dict
-            if key not in tg_dict:
-                tg_dict[key] = []
-            # append some value
-            tg_dict[key].append(a)
+    def teardown_class(cls):
+        xresult = TestDict()
+        hreport = HTMLClass()
+        tg_dict = {}
+        path_ = os.path.join(os.path.abspath("."), "report")
+        files_ = os.listdir(path_)
+        for file_ in files_:
+            if file_.endswith('.txt'):
+                fyl = os.path.join(path_, file_)
+                f = open(fyl, "r")
+                a = []
+                for line in f:
+                    a.append(line.replace('\n', ''))
+                f.close()
+                key = a[0]
+                # check if key is already present in tg_dict
+                if key not in tg_dict:
+                    tg_dict[key] = []
+                # append some value
+                tg_dict[key].append(a)
 
-    for key in tg_dict:
-        for a in tg_dict[key]:
-            values = {}
-            passed = 0
-            failed = 0
-            # Legend:
-            # a[0]=testsuite; a[1]=testcase; a[2]=status; a[3]=browser; a[4]=os; a[5]=screenshot; a[6]=log; a[7]=elog; a[8]=duration
-            if a[2] == 'True':
-                passed = 1
-            else:
-                failed = 1
-            values["testsuite"] = key
-            values["testcase"] = a[1]
-            values["passed"] = str(passed)
-            values["failed"] = str(failed)
-            values["duration"] = a[8]
-            values["browser"] = a[3]
-            values["os"] = a[4]
-            values["screenshot"] = a[5]
-            values["log"] = a[6]
-            values["elog"] = a[7]
-            xresult.testDict = values
-        # outdir = xresult.create_xml(xresult.testDict)
-        xresult.create_xml(xresult.testDict)
-    hreport.create_html(path_)
-    if os.path.exists(os.path.join(path_, 'report.html')):
-        filelist = [f for f in files_ if f.endswith(".txt")]
-        for f in filelist:
-            os.remove(os.path.join(path_, f))
+        for key in tg_dict:
+            for a in tg_dict[key]:
+                values = {}
+                passed = 0
+                failed = 0
+                # Legend:
+                # a[0]=testsuite; a[1]=testcase; a[2]=status; a[3]=browser; a[4]=os; a[5]=screenshot; a[6]=log; a[7]=elog; a[8]=duration
+                if a[2] == 'True':
+                    passed = 1
+                else:
+                    failed = 1
+                values["testsuite"] = key
+                values["testcase"] = a[1]
+                values["passed"] = str(passed)
+                values["failed"] = str(failed)
+                values["duration"] = a[8]
+                values["browser"] = a[3]
+                values["os"] = a[4]
+                values["screenshot"] = a[5]
+                values["log"] = a[6]
+                values["elog"] = a[7]
+                xresult.testDict = values
+            xresult.create_xml(xresult.testDict)
+        hreport.create_html(path_)
+        # if os.path.exists(os.path.join(path_, 'report.html')):
+        #     filelist = [f for f in files_ if f.endswith(".txt")]
+        #     for f in filelist:
+        #         os.remove(os.path.join(path_, f))
+
+if __name__ == '__main__':
+    pytest.main(config.parallel)
