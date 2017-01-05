@@ -60,6 +60,8 @@ class BaseTest(unittest.TestCase):
                 self.driver = webdriver.Ie('.\drivers\IEDriverServer.exe')
             elif self.browser == 'chrome':
                 self.driver = webdriver.Chrome('.\drivers\chromedriver.exe')
+            elif self.browser == 'firefox':
+                self.driver = webdriver.Firefox()
             elif self.browser == 'mobile':
                 mobile_emulation = {"deviceName": config.device}
                 chrome_options = webdriver.ChromeOptions()
