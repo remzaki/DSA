@@ -30,10 +30,10 @@ class TestSequenceMeta(type):
                     OS = platform.system() + " " + platform.release()
                 if '.' in OS:
                     OS = OS.replace('.', ' ')
-                log_name = '%s-%s-%s' % (self.__name__, OS, self.desired_capabilities['browserName'])
+                log_name = '%s-%s-%s' % (self._testMethodName, OS, self.desired_capabilities['browserName'])
                 logger.setup_logger(log_name, '%s.log' % log_name, level=logging.DEBUG)
                 log = logging.getLogger(log_name)
-                log.info('Executing Test: %s', self.__name__)
+                log.info('Executing Test: %s', self._testMethodName)
                 
                 self.assertTrue(testdatas is not None)
                 actions = Actions()

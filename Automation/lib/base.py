@@ -102,8 +102,8 @@ class BaseTest(unittest.TestCase):
             # logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
             #                        self.__name__ + '-' + self.browser + ".log")
             if not status:
-                self.driver.save_screenshot('.\logs\%s.png' % self.__name__)
-                screenshot = os.path.join(os.path.join(os.path.abspath("."), "logs"), self.__name__ + ".png")
+                self.driver.save_screenshot('.\logs\%s.png' % self._testMethodName)
+                screenshot = os.path.join(os.path.join(os.path.abspath("."), "logs"), self._testMethodName + ".png")
             OS = platform.system() + " " + platform.release()
             browser = self.browser
             self.endTime = time.time()
@@ -140,19 +140,22 @@ class BaseTest(unittest.TestCase):
             OS = OS.replace('.', ' ')
         elog = ''
         logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
-                               self.__name__ + '-' + OS + '-' + browser + ".log")
+                               self._testMethodName + '-' + OS + '-' + browser + ".log")
         if not status:
-            with open(logfile) as f:
-                for line in f:
-                    if '- ERROR -' in line and not ('.Actions.wait.' in line):
-                        if len(line) > 250:
-                            elog = line[:250]
-                        else:
-                            elog = line
-                        if '\n' in elog:
-                            elog = elog.replace('\n', '')
-                        break
-                # log = f.readlines()
+            try:
+                with open(logfile) as f:
+                    for line in f:
+                        if '- ERROR -' in line and not ('.Actions.wait.' in line):
+                            if len(line) > 250:
+                                elog = line[:250]
+                            else:
+                                elog = line
+                            if '\n' in elog:
+                                elog = elog.replace('\n', '')
+                            break
+                    # log = f.readlines()
+            except IOError, exc:
+                print exc
 
         if config.parallelism and config.exec_mode == 'remote':
             tg_name = id_[1] + '-' + OS + '-' + browser
