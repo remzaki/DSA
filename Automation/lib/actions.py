@@ -118,7 +118,7 @@ class Actions(object):
                 self.log.info('Refresh page to request new cookies')
                 driver.refresh()
 
-            if config.release:
+            if config.release and clear_cookie:
                 time.sleep(1)
                 self.release(step + 0.5, obj, ['', ''])
         except TimeoutException:
