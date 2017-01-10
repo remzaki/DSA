@@ -11,6 +11,7 @@ from selenium.common.exceptions import TimeoutException, \
     UnexpectedAlertPresentException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as ec
+from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.by import By
 import time
 from selenium.webdriver.common.keys import Keys
@@ -444,6 +445,36 @@ class Actions(object):
                                    edict, element, f, enabled)
                     obj.assertTrue(False, 'Element %s[%s] Enable status expected %s but actual is %s' %
                                    (edict, element, f, enabled))
+
+            elif way.lower() == 'selected':
+                try:
+                    presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                    self.w8.until(presence_of)
+                except TimeoutException, exc:
+                    self.log.warning('TimeoutException: %s', exc)
+                except Exception, exc:
+                    self.log.warning('Exception: %s', exc)
+
+                act = False
+                exp = False
+                if str(exp_value).lower() != "true" and str(exp_value).lower() != "false":
+                    selected = Select(e)
+                    act = selected.first_selected_option.text
+                    exp = exp_value
+                else:
+                    try:
+                        act = e.is_selected()
+                    except Exception, exc:
+                        self.log.warning('Exception: %s', exc)
+                    finally:
+                        if str(exp_value).lower() == 'true':
+                            exp = True
+
+                if act != exp:
+                    self.log.error('Element %s[%s] selection expected "%s" but actual is "%s"',
+                                   edict, element, exp_value, act)
+                    obj.assertTrue(False, 'Element %s[%s] selection expected "%s" but actual is "%s"' %
+                                   (edict, element, exp_value, act))
 
             else:
                 self.log.error('Verify command "%s" is not supported', way)
