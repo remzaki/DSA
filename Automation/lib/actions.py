@@ -420,6 +420,31 @@ class Actions(object):
                 else:
                     self.log.info('Expected Type: "%s" == "%s" :Actual Type', exp_value, act_value)
 
+            elif way.lower() == 'enabled':
+                try:
+                    presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                    self.w8.until(presence_of)
+                except TimeoutException, exc:
+                    self.log.warning('TimeoutException: %s', exc)
+                except Exception, exc:
+                    self.log.warning('Exception: %s', exc)
+
+                enabled = False
+                f = False
+                try:
+                    enabled = e.is_enabled()
+                except Exception, exc:
+                    self.log.warning('Exception: %s', exc)
+                finally:
+                    if str(exp_value).lower() == 'true':
+                        f = True
+
+                if enabled != f:
+                    self.log.error('Element %s[%s] Enable status expected %s but actual is %s',
+                                   edict, element, f, enabled)
+                    obj.assertTrue(False, 'Element %s[%s] Enable status expected %s but actual is %s' %
+                                   (edict, element, f, enabled))
+
             else:
                 self.log.error('Verify command "%s" is not supported', way)
                 obj.assertTrue(False, 'Verify command "%s" is not supported' % way)
