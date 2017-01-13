@@ -11,41 +11,63 @@ class HTMLClass(object):
         This method creates a table entry with a list of browser, exec time, fail/pass status, test name, and then
         returns the tableresult.
         """
-        if passed == "":
-	        tableresult = """            <tr>
-                        <td id='td3'><strong>&nbsp;%s</strong></td>
-                        <td id='td3'>%s</td>
-                        <td id='td3'>%s</td>
-                        <td id='td3'>%s</td>
-                        <td id='td3'>%s</td>
-                        <td id='td3'>%s</td>
-                        <td id='td3'>%s</td>
-                    </tr>""" % (name, failed, duration, OS, browser, log, elog)
+        if passed == "": #this row data here is for regression test name
+            OS = str(OS).replace(' ', '_')
+            browser = str(browser).replace(' ', '_')
+            id_name = OS + '-' + browser
+            if i == 0:
+                tableresult = """   <tr data-toggle="collapse" data-target=#%s class="accordion-toggle">
+                                     <td colspan="7" id='td3'><button class="btn btn-default btn-xs"></button><strong>&nbsp;%s</strong></td>
+                                    </tr>
+                                    <tr>
+                                     <td colspan="12" id="hiddenRow" class="hiddenRow">
+                                     <div class="accordian-body collapse" id=%s>
+                                    <table id="tableTestResults" class="table table-borderless">
+                                    """ % (id_name, name, id_name)
+            else:
+                tableresult = """
+                                        </table>
+            			                </div>
+          			                    </td>
+                                    </tr>
+                                    <tr data-toggle="collapse" data-target=#%s class="accordion-toggle">
+                                     <td colspan="7" id='td3'><button class="btn btn-default btn-xs"></button><strong>&nbsp;%s</strong></td>
+                                    </tr>
+                                    <tr>
+                                     <td colspan="12" id="hiddenRow" class="hiddenRow">
+                                     <div class="accordian-body collapse" id=%s>
+              			            <table id="tableTestResults" class="table table-borderless">
+                                    """ % (id_name, name, id_name)
 
-        elif passed == "1":
-            tableresult = """            <tr>
-                        <td id='td2'>%s</td>
-                        <td id='td2'><a href="%s" class="btn btn-success btn-xs" role="button" target="_blank">Pass</a>
-                        <td id='td2'>%s</td>
-                        <td id='td2'>%s</td>
-                        <td id='td2'>%s</td>
-                        <td id='td2'><a href="%s" class="btn btn-info btn-xs" role="button" target="_blank">View</a>
-                        <td id='td2'>%s</td>
-                    </tr>""" % (name, screenshot, duration, OS, browser, log, elog)
+        elif passed == "1": #this row data here is for passed test
+            tableresult = """
+                                      <tr>
+                                        <td class="col-md-3 col-sm-3 col-xs-3" id='td2'>%s</td>
+                                        <td class="col-md-1 col-sm-1 col-xs-1" id='td2'><a href="%s" class="btn btn-success btn-xs" role="button" target="_blank">Pass</a></td>
+                                        <td class="col-md-2 col-sm-2 col-xs-2" id='td2'>%s</td>
+                                        <td class="col-md-2 col-sm-2 col-xs-2" id='td2'>%s</td>
+                                        <td class="col-md-2 col-sm-2 col-xs-2" id='td2'>%s</td>
+                                        <td class="col-md-1 col-sm-1 col-xs-1" id='td2'><a href="%s" class="btn btn-info btn-xs" role="button" target="_blank">View</a></td>
+                                        <td class="col-md-1 col-sm-1 col-xs-1" id='td2'>%s</td>
+                                      </tr>
+              			""" % (name, screenshot, duration, OS, browser, log, elog)
 
-        else:
-			tableresult = """            <tr>
-                        <td id='td2'>%s</td>
-                        <td id='td2'><a href="%s" class="btn btn-danger btn-xs" role="button" target="_blank">Fail</a>
-                        <td id='td2'>%s</td>
-                        <td id='td2'>%s</td>
-                        <td id='td2'>%s</td>
-                        <td id='td2'><a href="%s" class="btn btn-info btn-xs" role="button" target="_blank">View</a>
-                        <td id='td2'><a href="#elog_%s" class="btn btn-info btn-xs" data-toggle="collapse">View</a>
-                        <div id="elog_%s" class="collapse">
-                        %s
-                        </div>
-                    </tr>""" % (name, screenshot, duration, OS, browser, log, i, i, elog)
+        else: #this row data here is for failed test
+			tableresult = """
+                                      <tr>
+                                        <td class="col-md-3 col-sm-3 col-xs-3" id='td2'>%s</td>
+                                        <td class="col-md-1 col-sm-1 col-xs-1" id='td2'><a href="%s" class="btn btn-danger btn-xs" role="button" target="_blank">Fail</a>
+                                        <td class="col-md-2 col-sm-2 col-xs-2" id='td2'>%s</td>
+                                        <td class="col-md-2 col-sm-2 col-xs-2" id='td2'>%s</td>
+                                        <td class="col-md-2 col-sm-2 col-xs-2" id='td2'>%s</td>
+                                        <td class="col-md-1 col-sm-1 col-xs-1" id='td2'><a href="%s" class="btn btn-info btn-xs" role="button" target="_blank">View</a>
+                                        <td class="col-md-1 col-sm-1 col-xs-1" id='td2'><a href="#elog_%s" class="btn btn-info btn-xs" data-toggle="collapse">View</a>
+                                            <div id="elog_%s" class="collapse">
+                                            %s
+                                            </div>
+                                        </td>
+                                      </tr>
+              			""" % (name, screenshot, duration, OS, browser, log, i, i, elog)
         return tableresult
 
     def process_xml(self, XMLFile, outputdir):
@@ -135,12 +157,15 @@ class HTMLClass(object):
         root  = tree.getroot()
         file_ = xmlfile.split(".")
         file_ = file_[0]
-        resultdict[file_] = {"duration":None, "fail":None, "browser":None, "name":file_, "pass":None, "os":None, "screenshot":None, "log":None, "elog":None}
         x = 1
         for ts in root.iter('testcase'):
             result = ts.attrib
             resultdict[file_ + str(x)] = result
             x += 1
+        os_ = ts.attrib.get('os')
+        browser = ts.attrib.get('browser')
+        resultdict[file_] = {"duration": None, "fail": None, "browser": browser, "name": file_, "pass": None, "os": os_,
+                             "screenshot": None, "log": None, "elog": None}
         return resultdict
 
     def create_xml_report(self, tc_dict):
