@@ -38,6 +38,7 @@ class TestSequenceMeta(type):
                 self.assertTrue(testdatas is not None)
                 actions = Actions()
                 actions.log_name = log_name
+                actions.platform = OS
                 self.driver.implicitly_wait(config.timeout)
                 for step, d in enumerate(testdatas):
                     cmd = d[0].lower()
@@ -102,7 +103,7 @@ class TestClass(BaseTest):
         folder = os.path.join(tr_folder, folder_name)
         files = os.listdir(tr_dir)
         for f in files:
-            if f.endswith(".xml") or f.endswith(".html") or f.endswith(".txt"):
+            if f.endswith(".xml") or f.endswith(".html") or f.endswith(".txt") or f.endswith(".policy_num"):
                 if not os.path.exists(folder):
                     os.makedirs(folder)
                 file_ = os.path.join(tr_dir, f)
