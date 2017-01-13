@@ -38,6 +38,7 @@ class Actions(object):
         self.typ = None
         self.uid = None
         self.capture_ = {}
+        self.platform = None
 
     def logger(self, suffix):
         self.log = logging.getLogger(self.log_name + ".Actions" + suffix)
@@ -873,6 +874,17 @@ class Actions(object):
 
                     im = im.crop((left, top, right, bottom))  # defines crop points
                     im.save(file_)  # saves new cropped image
+                elif 'policy' in var.lower():
+                    policies = driver.find_elements_by_css_selector(element)
+                    values = [policy.text for policy in policies]
+                    self.log.debug('policy_nums = ' + str(values))
+                    policy_nums = os.path.join(os.path.join(os.path.abspath("."), "report"),
+                                               obj._testMethodName + '.policy_num')
+                    file_ = open(policy_nums, "a")
+                    file_.write(self.platform + ' - ' + obj.desired_capabilities['browserName'] + ':\n')
+                    for value in values:
+                        file_.write('- ' + value + '\n')
+                    file_.close()
                 else:
                     self.capture_[var] = e.text
             except TimeoutException, exc:
