@@ -63,6 +63,10 @@
         text-align: center;
       }
 
+      .table-responsive{
+        overflow: visible;
+      }
+
       .table > tbody > tr > td,
       .table > tbody > tr > th,
       .table > thead > tr > td,
@@ -81,6 +85,13 @@
         color: #495961;
       }
 
+      #hiddenRow{
+        padding: 0 !important;
+        border: none !important;
+      }
+      #tableTestResults{
+        margin: 0 !important;
+      }
       .panel {
         border-radius: 0;
         border: 1px solid #aaa;
@@ -137,6 +148,11 @@
         border-right: 1px solid #aaa;
       }
 
+
+	  .table-borderless td {
+		border: none !important;
+	  }
+
       #tableLabel {
         text-transform: uppercase;
         font-size: 15px;
@@ -150,97 +166,91 @@
         font-size: 13px;
       }
 
+
 	</style>
 	</head>
 	<body>
-		<nav class="navbar navbar-inverse navbar-fixed-top">
-		  <div class="container">
-			<div class="navbar-header">
-			  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-				<span class="sr-only">Toggle navigation</span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-				<span class="icon-bar"></span>
-			  </button>
-			  <a class="navbar-brand" href="">AUTOMATION TEST RESULTS</a>
-			</div>
-		  </div>
-		</nav>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+	  <div class="container">
+		<div class="navbar-header">
+		  <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		  </button>
+		  <a class="navbar-brand" href="">AUTOMATION TEST RESULTS</a>
+		</div>
+	  </div>
+	</nav>
+	<br/><br/><br/>
 
-		<br/><br/><br/>
-
-	<div id="containerMain" class="container">
-      <div class="row">
-        <div class="col-md-16">
-
-          <div class="panel panel-default">
-            <div class="panel-heading">
-              <h3 class="panel-title">TEST SUMMARY</h3>
-            </div>
-            <div class="panel-body">
-              <div class="row">
-                <div class="col-md-3 keep-center divide">
-                  <span class="test-result-value">@@totaltc@@</span>
-                  <span class="panel-data-label">Total Test cases</span>
-                </div>
-                <div class="col-md-3 keep-center divide passed">
-                  <span class="test-result-value">@@pass@@</span>
-                  <span class="panel-data-label">Passed</span>
-                </div>
-                <div class="col-md-3 keep-center divide failed">
-                  <span class="test-result-value">@@fail@@</span>
-                  <span class="panel-data-label">Failed</span>
-                </div>
-                <div class="col-md-3 keep-center duration">
-                  <span class="test-result-value">@@duration@@</span>
-                  <span class="panel-data-label">Duration(hh:mm:ss)</span>
-                </div>
-              </div>
-            </div>
+  <div id="containerMain" class="container">
+    <div class="row">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3 class="panel-title">TEST SUMMARY</h3>
+        </div>
+        <div class="panel-body">
+          <div class="col-md-3 keep-center divide">
+            <span class="test-result-value">@@totaltc@@</span>
+            <span class="panel-data-label">Total Test cases</span>
+          </div>
+          <div class="col-md-3 keep-center divide passed">
+            <span class="test-result-value">@@pass@@</span>
+            <span class="panel-data-label">Passed</span>
+          </div>
+          <div class="col-md-3 keep-center divide failed">
+            <span class="test-result-value">@@fail@@</span>
+            <span class="panel-data-label">Failed</span>
+          </div>
+          <div class="col-md-3 keep-center duration">
+            <span class="test-result-value">@@duration@@</span>
+            <span class="panel-data-label">Duration(hh:mm:ss)</span>
           </div>
         </div>
       </div>
+    </div>
 
-      <div class="row">
-        <div class="col-md-16">
-          <h2 id="tableLabel">Technical Summary</h2>
-          <div class="table-responsive">
-            <table id="tableTestResults" class="table">
-              <thead>
-                <tr>
-                  <th>
-                    <span class="col-label">Name</span>
-                  </th>
-                  <th class="col-md-1">
-                    <span class="col-label">Status</span>
-                  </th>
-                  <th class="col-md-1">
-                    <span class="col-label">Duration</span>
-                  </th>
-				  <th class="col-md-2">
-                    <span class="col-label">Platform</span>
-                  </th>
-				  <th class="col-md-1">
-                    <span class="col-label">Browser</span>
-                  </th>
-				  <th class="col-md-1">
-                    <span class="col-label">Log</span>
-                  </th>
-                  <th class="col-md-1">
-                    <span class="col-label">Error</span>
-                  </th>
-                </tr>
-              </thead>
-			  
+    <div class="row">
+      <h2 id="tableLabel">Technical Summary</h2>
+      <div class="table-responsive">
+        <table id="tableTestResults" class="table">
+          <thead>
+          <tr>
+            <th class="col-md-3 col-sm-3 col-xs-3">
+              <span class="col-label">Name</span>
+            </th>
+            <th class="col-md-1 col-sm-1 col-xs-1">
+              <span class="col-label">Status</span>
+            </th>
+            <th class="col-md-2 col-sm-2 col-xs-2">
+              <span class="col-label">Duration</span>
+            </th>
+            <th class="col-md-2 col-sm-2 col-xs-2">
+              <span class="col-label">Platform</span>
+            </th>
+            <th class="col-md-2 col-sm-2 col-xs-2">
+              <span class="col-label">Browser</span>
+            </th>
+            <th class="col-md-1 col-sm-1 col-xs-1">
+              <span class="col-label">Log</span>
+            </th>
+            <th class="col-md-1 col-sm-1 col-xs-1">
+              <span class="col-label">Error</span>
+            </th>
+          </tr>
+          </thead>
+
               <tbody>
                 @@tableentry@@
+                                    </table>
+                                     </div>
+                                     </td>
+                                    </tr>
               </tbody>
             </table>
           </div>
         </div>
       </div>
-
-		</div>
-	</div>
-
 </html>
