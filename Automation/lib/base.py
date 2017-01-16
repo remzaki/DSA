@@ -99,13 +99,12 @@ class BaseTest(unittest.TestCase):
         screenshot = ''
 
         if config.exec_mode == 'local':
-            # logfile = os.path.join(os.path.join(os.path.abspath("."), "logs"),
-            #                        self.__name__ + '-' + self.browser + ".log")
-            if not status:
-                self.driver.save_screenshot('.\logs\%s.png' % self._testMethodName)
-                screenshot = os.path.join(os.path.join(os.path.abspath("."), "logs"), self._testMethodName + ".png")
             OS = platform.system() + " " + platform.release()
             browser = self.browser
+            if not status:
+                self.driver.save_screenshot('.\logs\%s-%s-%s.png' % (self._testMethodName, OS, browser))
+                screenshot = os.path.join(os.path.join(os.path.abspath("."), "logs"),
+                                          self._testMethodName + '-' + OS + '-' + browser + ".png")
             self.endTime = time.time()
             duration = (self.endTime - self.startTime) + 3
 
