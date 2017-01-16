@@ -431,9 +431,11 @@ class Actions(object):
                 except Exception, exc:
                     self.log.warning('Exception: %s', exc)
 
+                displayed = False
                 enabled = False
                 f = False
                 try:
+                    displayed = e.is_displayed()
                     enabled = e.is_enabled()
                 except Exception, exc:
                     self.log.warning('Exception: %s', exc)
@@ -442,10 +444,11 @@ class Actions(object):
                         f = True
 
                 if enabled != f:
-                    self.log.error('Element %s[%s] Enable status expected %s but actual is %s',
-                                   edict, element, f, enabled)
-                    obj.assertTrue(False, 'Element %s[%s] Enable status expected %s but actual is %s' %
-                                   (edict, element, f, enabled))
+                    if displayed:
+                        self.log.error('Element %s[%s] Enable status expected %s but actual is %s',
+                                       edict, element, f, enabled)
+                        obj.assertTrue(False, 'Element %s[%s] Enable status expected %s but actual is %s' %
+                                       (edict, element, f, enabled))
 
             elif way.lower() == 'selected':
                 try:
