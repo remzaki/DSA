@@ -920,3 +920,57 @@ class Actions(object):
 
             c3 = self.getset_elem(driver, date_btn)
             c3.click()
+
+    def scroll(self, step, obj, l=None):
+        self.logger('.scroll.%s' % step)
+        self.log.debug('Parameters: ' + l[0] + " | " + l[1])
+
+        driver = obj.driver
+        if ':' in l[0]:
+            arr = l[0].split(':')
+        else:
+            self.log.error('Method was called but with no proper Instruction on argument')
+            obj.assertTrue(False, 'Method was called but with no proper Instruction on argument')
+
+        edict = self.trim_name(l[1])
+        if edict:
+            got_data = self.elements.get_data(edict)
+        else:
+            edict = got_data = l[1]
+
+        element = got_data.strip()
+
+        if arr[0] == 'Element':
+            try:
+                presence_of = ec.presence_of_element_located((By.CSS_SELECTOR, element))
+                e = self.w8.until(presence_of)
+            except TimeoutException, exc:
+                self.log.warning('TimeoutException: %s', exc)
+            except Exception, exc:
+                self.log.warning('Exception: %s', exc)
+
+            try:
+                location = e.location
+                self.log.debug('"%s" location: %s', element, location)
+                driver.execute_script("return arguments[0].scrollIntoView();", e)
+                driver.execute_script("window.scrollBy(0, -200);")
+            except Exception, exc:
+                self.log.error('Exception: %s', exc)
+                obj.assertTrue(False, 'Exception: %s' % exc)
+        elif arr[0] == 'Page':
+            page_height = obj.driver.execute_script("return document.body.scrollHeight")
+            screen_height = obj.driver.execute_script("return window.screen.height")
+            screen_height -= 200
+            scroll_bar = obj.driver.execute_script("return window.scrollbars.visible")
+
+            self.log.info("Page Height: %i", page_height)
+            self.log.info("Screen Height: %s", screen_height)
+            self.log.info("Scrollbar: %s", scroll_bar)
+
+            if scroll_bar:
+                while screen_height < page_height:
+                    scr = "window.scrollTo(0, %i)" % screen_height
+                    obj.driver.execute_script(scr)
+                    screen_height += screen_height
+                    self.log.info("scrolling %s", screen_height)
+                    time.sleep(3.5)
