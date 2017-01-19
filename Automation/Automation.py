@@ -9,10 +9,13 @@ from lib.generateHtml import *
 import os
 import shutil
 import datetime
+from lib.checkEmail import CheckEmail
+import time
 
 logger = Logger()
 data = Parser().get_datadict()
 # data = {}
+checkEmail = CheckEmail()
 
 
 class TestSequenceMeta(type):
@@ -162,11 +165,15 @@ class TestClass(BaseTest):
                 values["elog"] = a[7]
                 xresult.testDict = values
             xresult.create_xml(xresult.testDict)
-        hreport.create_html(path_)
+
         # if os.path.exists(os.path.join(path_, 'report.html')):
         #     filelist = [f for f in files_ if f.endswith(".txt")]
         #     for f in filelist:
         #         os.remove(os.path.join(path_, f))
+
+        checkEmail.clear_emails()
+        end_time = time.time() - BaseTest.start_time
+        hreport.create_html(path_, end_time)
 
 if __name__ == '__main__':
     pytest.main(config.parallel)

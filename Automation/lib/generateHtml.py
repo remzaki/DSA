@@ -70,7 +70,7 @@ class HTMLClass(object):
               			""" % (name, screenshot, duration, OS, browser, log, i, i, elog)
         return tableresult
 
-    def process_xml(self, XMLFile, outputdir):
+    def process_xml(self, XMLFile, outputdir, act_durationtime):
         """This method processes an xmlfile and convert it into an html file."""
         HTMLTempalteFile = "HTML.html.template"
         outputname = "report.html"
@@ -126,7 +126,8 @@ class HTMLClass(object):
             total_fail = testsumm.find('failed').text
             total_time = testsumm.find('totaltime').text
         # endfor
-        total_time = self.sec2time(float(total_time))
+        # total_time = self.sec2time(float(total_time)) # commented out: use to get the sum of all test cases duration time of execution
+        total_time = self.sec2time(float(act_durationtime))
 
         HTMLData = HTMLData.replace("@@totaltc@@", total_tests)
         HTMLData = HTMLData.replace("@@pass@@", total_pass)
@@ -233,10 +234,10 @@ class HTMLClass(object):
             return pattern % (h, m, s)
         return ('%d days, ' + pattern) % (d, h, m, s)
 
-    def create_html(self, outputdir):
+    def create_html(self, outputdir, act_durationtime):
         """This method will call the merge_xmls and process_xml methods to create an html file."""
         xml = self.merge_xmls(outputdir)
-        self.process_xml(xml, outputdir)
+        self.process_xml(xml, outputdir, act_durationtime)
 
 
 # if __name__ == "__main__":
