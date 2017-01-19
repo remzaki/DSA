@@ -12,12 +12,12 @@ import logging
 from lib.platformCount import *
 from lib.generateXml import *
 from lib.generateHtml import *
-from lib.checkEmail import CheckEmail
+# from lib.checkEmail import CheckEmail
 
 logger = Logger()
 platforms = config.browser
 pc = PlatformCount()
-checkEmail = CheckEmail()
+# checkEmail = CheckEmail()
 
 
 def on_platforms(platforms):
@@ -42,6 +42,7 @@ class BaseTest(unittest.TestCase):
     upload = True
     tunnel_id = None
     build_tag = None
+    start_time = time.time()
 
     # logger = logging.getLogger('Automation.Base.BaseTest')
 
@@ -172,7 +173,7 @@ class BaseTest(unittest.TestCase):
         file_.write(str(duration))
         file_.close()
 
-        checkEmail.clear_emails()
+        # checkEmail.clear_emails()
         self.driver.quit()
 
     @classmethod
