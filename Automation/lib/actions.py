@@ -960,14 +960,12 @@ class Actions(object):
         elif arr[0] == 'Page':
             page_height = obj.driver.execute_script("return document.body.scrollHeight")
             screen_height = obj.driver.execute_script("return window.screen.height")
-            screen_height -= 200
-            scroll_bar = obj.driver.execute_script("return window.scrollbars.visible")
 
             self.log.info("Page Height: %i", page_height)
             self.log.info("Screen Height: %s", screen_height)
-            self.log.info("Scrollbar: %s", scroll_bar)
 
-            if scroll_bar:
+            if screen_height < page_height:
+                screen_height -= 200
                 while screen_height < page_height:
                     scr = "window.scrollTo(0, %i)" % screen_height
                     obj.driver.execute_script(scr)
