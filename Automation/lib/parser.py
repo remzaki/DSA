@@ -1,26 +1,63 @@
-#/automation/lib/
+# /automation/lib/
 import os
 import re
 import csv
 import ConfigParser
 
 
+def _iter_browser(browsers):
+    for browser in browsers:
+        yield browser
+
+
+def __format_test_name(test, browser):
+    try:
+        platform = browser['deviceName']
+    except KeyError:
+        platform = browser['platform']
+    browser_name = browser['browserName']
+    name = test[0][1]
+
+    platform = platform.replace('.', '_').replace(' ', '_')
+    browser_name = browser_name.replace('.', '_').replace(' ', '_')
+    name = name.replace('.', '_').replace(' ', '_')
+
+    test_name = "%s-%s-%s" % (name, browser_name, platform)
+    return test_name
+
+
+def proliferate(browsers, test_data):
+    data = []
+    for browser in _iter_browser(browsers):
+        for suite, tests in test_data.items():
+            for test in tests:
+                # name = "%s-%s-%s" % (test[0][1], browser['browserName'], browser['platform'])
+                name = __format_test_name(test, browser)
+                data.append({'browser': browser, 'SuiteName': suite, 'TestName': name, 'steps': test})
+    return data
+
+
 class Parser:
+
+    def __init__(self, path=None):
+        self.path = 'data'
+        if path is not None:
+            self.path = path
+
     def readconfig(self):
         """"This method searches the run.ini file in test suites directory and gets the testcases that will be ran."""
-        ts_folder = "data"
-        inifile   = "run.ini"
-        rtc       = "run_testcases"
-        tc        = "testcases"
-        rtc_all   = False
-        tc_is     = ""
-        t_is      = ""
+        ts_folder = self.path
+        inifile = "run.ini"
+        rtc = "run_testcases"
+        tc = "testcases"
+        rtc_all = False
+        tc_is = ""
         tests_dir = {}
-        tests     = {}
+        tests = {}
 
-        cwd       = os.path.abspath(".")
-        config    = ConfigParser.ConfigParser()
-        path_     = os.path.join(cwd, ts_folder)
+        cwd = os.path.abspath(".")
+        config = ConfigParser.ConfigParser()
+        path_ = os.path.join(cwd, ts_folder)
         if os.path.exists(path_):
             for root, dirs, files in os.walk(path_):
                 break
@@ -30,14 +67,14 @@ class Parser:
                     key_ts = key_ts.replace(" ", "_")
                 else:
                     key_ts = str(dir)
-                path  = os.path.join(path_, dir)
+                path = os.path.join(path_, dir)
                 file_ = os.path.join(path, inifile)
                 if inifile in os.listdir(path):
                     if os.path.getsize(file_) > 0:
                         config.read(file_)
                         sections = config.sections()
                         for section in sections:
-                            #Gets the run_testcases section, its option and its value
+                            # Gets the run_testcases section, its option and its value
                             if rtc == section:
                                 for option in config.options(section):
                                     if option == rtc:
@@ -52,7 +89,7 @@ class Parser:
                                     else:
                                         tc_is = "nall"
                             # Gets the testcases section, its option and its value
-                            elif tc  == section and tc_is == "nall":
+                            elif tc == section and tc_is == "nall":
                                 for option in config.options(section):
                                     if option == tc:
                                         value = config.get(section, option)
@@ -65,13 +102,13 @@ class Parser:
                                                 v = os.path.join(path, val)
                                                 tc_list.append(v)
                                         tests[key_ts] = tc_list
-                                        #Gets all the testcases if testcases option is empty or no testcases listed
+                                        # Gets all the testcases if testcases option is empty or no testcases listed
                                         if len(tc_list) == 0:
                                             rtc_all = True
                                             tests_dir[key_ts] = path
                                         break
                                     else:
-                                        print "no option for testcases = %s... run everything = %s" %(option, path)
+                                        print "no option for testcases = %s... run everything = %s" % (option, path)
                                         rtc_all = True
                                         tests_dir[key_ts] = path
 
@@ -105,17 +142,17 @@ class Parser:
 
     def read_csvfiles(self):
         """This method reads the contents of the csv files and save it in a datadict dictionary."""
-        tests    = self.readconfig()
+        tests = self.readconfig()
         datadict = {}
         for test in tests:
-            tsdict = {}
-            num    = 1
+            tsdict = []
+            num = 1
             files_ = tests.get(test)
             for file in files_:
                 list_ = []
                 no_tc = True
                 count = 1
-                #checks if csv file is empty
+                # checks if csv file is empty
                 if os.path.getsize(file) > 0:
                     f = open(file, 'rb')
                     n = int(sum(1 for r in csv.reader(f)))
@@ -130,31 +167,30 @@ class Parser:
                             if no_tc:
                                 ro = str(row).lower()
                                 if "testname" in ro:
-                                    sp  = re.split(',', ro)
+                                    sp = re.split(',', ro)
                                     key = sp[1]
                                     if "'" in key:
                                         key = re.sub('[\']', '', key)
-                                    key   = key.strip()
+                                    key = key.strip()
                                     no_tc = False
                                 if count == n:
-                                    key = "testcase_noname_%s" %str(num)
+                                    key = "testcase_noname_%s" % str(num)
                                     num = int(num)
                                     num += 1
                                 count += 1
                             list_.append(row)
-                        tsdict[key] = list_
+                        tsdict.append(list_)
+                        # tsdict[key] = list_
                     finally:
                         f.close()
             datadict[test] = tsdict
         return datadict
 
-
     def get_datadict(self):
         """This method calls the read_csvfiles method."""
-        data   = self.read_csvfiles()
+        data = self.read_csvfiles()
         # print data
         return data
-
 
 # if __name__ == '__main__':
 #     #print "main"

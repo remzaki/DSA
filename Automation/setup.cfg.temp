@@ -41,6 +41,29 @@ browser = chrome
 # device name; only works if browser = mobile
 device = 
 
+# Setup for execution = remote
+[remote]
+# your SauceLab username
+username = 
+
+# your SauceLab Access Key
+# for more info, check: https://wiki.saucelabs.com/display/DOCS/Account+Methods
+access_key = 
+
+# run the remote test parallel
+# values: true/false
+parallelism = true
+
+# how many execution in parallel
+# value here should coincide with your Concurrency Limit of your account
+# for more info, check: https://wiki.saucelabs.com/display/DOCS/Understanding+Concurrency+Limits+and+Team+Accounts
+parallel = 3
+
+# if using SauceConnect
+# for more info, check:
+tunnel_id =
+selenium_port =
+
 [email]
 # this section contains variables to be used for checkEmail lib and accessing gmail api
 mail = gmail
@@ -56,29 +79,6 @@ q_sub_scq = Your Health Plan Quote - sent on behalf of Broker Portal04
 q_sub_baa = subject:Your Application - sent on behalf of Broker Portal04
 q_ghi_hcc_sub = subject:HCC Life STM - Documents, subject:HCC Life STM order, subject:Thank you for applying through GetHealthInsurance!
 q_ghi_from = from:service@hcclifestm.com, from:No_Reply@gethealthinsurance.com
-
-# Setup for execution = remote
-[remote]
-# your SauceLab username
-username = 
-
-# your SauceLab Access Key
-# for more info, check: https://wiki.saucelabs.com/display/DOCS/Account+Methods
-accesskey = 
-
-# run the remote test parallel
-# values: true/false
-parallelism = true
-
-# how many execution in parallel
-# value here should coincide with your Concurrency Limit of your account
-# for more info, check: https://wiki.saucelabs.com/display/DOCS/Understanding+Concurrency+Limits+and+Team+Accounts
-parallel = 3
-
-# if using SauceConnect
-# for more info, check:
-tunnel_id =
-selenium_port =
 
 # this is for pytest
 # do not change anything here unless you know what you are doing

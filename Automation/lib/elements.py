@@ -2,18 +2,19 @@
 import httplib
 import json
 import glob
-from lib.config import config
 from StringIO import StringIO
 
+import lib.pre as pre
 
-class Elements:
+
+class Elements(object):
     """
     This Elements class queries the elements to either on a API server or a JSON downloaded file
     """
 
     def __init__(self):
         self.data = {}
-        if config.mode == 'offline':
+        if pre.config['server_connection'] == 'offline':
             path = "./Elements_*.json"
             g = glob.glob(path)
             if len(g) > 1:
@@ -29,7 +30,7 @@ class Elements:
     def get_data(self, name):
         data = False
 
-        if config.mode == 'offline':
+        if pre.config['server_connection'] == 'offline':
             try:
                 data = self.data[name]
             except KeyError:
@@ -37,8 +38,8 @@ class Elements:
             except Exception, ex:
                 print ex
 
-        elif config.mode == 'online':
-            request_site = httplib.HTTPConnection(config.server)
+        elif pre.config['server_connection'] == 'online':
+            request_site = httplib.HTTPConnection(pre.config['server_address'])
             request_site.request('GET', '/DSA/api/elements?name=%s&min=true' % name,
                                  headers={"Accept": "application/json"})
 
@@ -53,24 +54,6 @@ class Elements:
 
         return data
 
-    def batch(self):
-        req = httplib.HTTPConnection("localhost", 62526)
 
-        for d in self.data.items():
-            print "%s === %s" % (d[0], d[1][0])
-            print "Creating Request body..."
-            body = json.dumps({
-                "Name": d[0],
-                "Value": d[1][0],
-                "ShortDesc": ""
-            })
-            print body
-
-            print "Sending the API Request..."
-            req.request('POST', '/api/elements', body, headers={"Content-Type": "application/json"})
-
-            print "Acquiring Response..."
-            result = req.getresponse()
-            print "Response: %s" % result.read()
-
-            print "_" * 100
+def _trim_name():
+    pass
